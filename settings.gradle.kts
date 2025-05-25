@@ -16,6 +16,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://artifactory.cronapp.io/libs-snapshot") }
+        flatDir {
+            dirs("app/libs")
+        }
     }
 }
 
