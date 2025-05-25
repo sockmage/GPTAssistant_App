@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class MessageAdapter : RecyclerView.Adapter<MessageAdapter.ViewHolder>() {
-    private val messages = mutableListOf<Message>()
+    private val messages = mutableListOf<UserMessage>()
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val textView: TextView = view.findViewById(R.id.messageText)
@@ -29,7 +29,7 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.ViewHolder>() {
 
     override fun getItemCount() = messages.size
 
-    fun addMessage(message: Message) {
+    fun addMessage(message: UserMessage) {
         messages.add(message)
         notifyItemInserted(messages.size - 1)
     }
