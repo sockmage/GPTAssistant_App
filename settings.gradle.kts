@@ -23,5 +23,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GPTAssistant"
+rootProject.name = "Language AI Helper"
 include(":app")

@@ -5,12 +5,11 @@ import com.example.gptassistant.data.model.ChatResponse
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
-import com.example.gptassistant.BuildConfig
 
 interface OpenAIApi {
     @POST("v1/chat/completions")
     suspend fun chat(
-        @Header("Authorization") authorization: String = "Bearer " + BuildConfig.OPENAI_API_KEY,
+        @Header("Authorization") authorization: String,
         @Body request: ChatRequest
     ): ChatResponse
 } 
