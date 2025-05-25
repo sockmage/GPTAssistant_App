@@ -15,7 +15,7 @@ class ChatRepository @Inject constructor(
         val request = ChatRequest(
             messages = listOf(MessageRequest("user", message))
         )
-        val response = api.chat(request)
+        val response = api.chat(request = request)
         return response.choices.firstOrNull()?.message?.content ?: "Извините, не удалось получить ответ."
     }
 } 
