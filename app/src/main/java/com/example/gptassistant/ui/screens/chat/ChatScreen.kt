@@ -85,8 +85,9 @@ fun ChatScreen(
                         onValueChange = { messageText = it },
                         modifier = Modifier.weight(1f),
                         placeholder = { Text("Введите сообщение...") },
-                        colors = TextFieldDefaults.textFieldColors(
-                            containerColor = MaterialTheme.colorScheme.surface
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
                         )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
