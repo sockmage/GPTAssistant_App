@@ -10,7 +10,7 @@ import com.example.gptassistant.BuildConfig
 interface OpenAIApi {
     @POST("v1/chat/completions")
     suspend fun chat(
-        @Header("Authorization") authorization: String = "Bearer ${BuildConfig.OPENAI_API_KEY}",
+        @Header("Authorization") authorization: String = "Bearer " + BuildConfig.OPENAI_API_KEY,
         @Body request: ChatRequest
     ): ChatResponse
 } 

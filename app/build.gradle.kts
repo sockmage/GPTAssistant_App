@@ -1,9 +1,18 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+val openAiKey: String = localProperties.getProperty("OPENAI_API_KEY") ?: ""
 
 android {
     namespace = "com.example.gptassistant"
@@ -18,7 +27,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        buildConfigField("String", "OPENAI_API_KEY", "\"${project.findProperty("OPENAI_API_KEY") ?: ""}\"")
+        buildConfigField("String", "OPENAI_API_KEY", "\"$openAiKey\"")
     }
 
     buildTypes {
@@ -44,7 +53,7 @@ android {
         dataBinding = false
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 
@@ -54,7 +63,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.constraintlayout)
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.22")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
     
     // Compose dependencies
     implementation(platform(libs.androidx.compose.bom))
@@ -63,7 +72,7 @@ dependencies {
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.compose.v290)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     
     // Navigation
     implementation(libs.androidx.navigation.compose)
@@ -115,8 +124,8 @@ configurations.all {
         if (requested.group == "org.jetbrains.kotlin"
             && requested.name != "kotlin-metadata-jvm"
         ) {
-            useVersion("1.9.22")
-            because("Force all Kotlin dependencies to 1.9.22 to avoid 2.x conflicts, except kotlin-metadata-jvm")
+            useVersion("1.9.24")
+            because("Force all Kotlin dependencies to 1.9.24 to avoid 2.x conflicts, except kotlin-metadata-jvm")
         }
     }
 }
