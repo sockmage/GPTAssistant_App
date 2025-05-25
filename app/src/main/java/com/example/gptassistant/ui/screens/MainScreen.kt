@@ -50,13 +50,14 @@ fun MainScreen() {
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "Добро пожаловать в Language AI Helper!",
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 32.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
+                Spacer(modifier = Modifier.height(16.dp))
                 RoleSelectionScreen(onRoleSelected = { role ->
                     selectedRole = role
                 })
