@@ -1,7 +1,7 @@
 package com.example.gptassistant.data.model
 
 data class ChatRequest(
-    val model: String = "gpt-3.5-turbo",
+    val model: String = "gpt-4",
     val messages: List<MessageRequest>,
     val temperature: Double = 0.7,
     val max_tokens: Int = 1000
