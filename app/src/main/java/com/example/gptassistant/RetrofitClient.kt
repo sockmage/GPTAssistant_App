@@ -1,9 +1,10 @@
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import com.example.gptassistant.data.api.OpenAIApi
 
 object RetrofitClient {
     // Базовый URL API OpenAI
-    private const val BASE_URL = "https://api.openai.com/"
+    private const val BASE_URL = "https://laihproxy-production.up.railway.app/"
 
     // Создаем объект API один раз и переиспользуем
     val api: OpenAIApi by lazy {
