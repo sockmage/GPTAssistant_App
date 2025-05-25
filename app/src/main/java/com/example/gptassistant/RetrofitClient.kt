@@ -1,16 +1,16 @@
-package com.example.gptassistant.api
-
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "https://ТВОЙ-API-DOMAIN.railway.app/"
+    // Базовый URL API OpenAI
+    private const val BASE_URL = "https://api.openai.com/"
 
-    val instance: ApiService by lazy {
+    // Создаем объект API один раз и переиспользуем
+    val api: OpenAIApi by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
+            .baseUrl(BASE_URL) // Указываем базовый URL
+            .addConverterFactory(GsonConverterFactory.create()) // Добавляем конвертер JSON
+            .build() // Собираем Retrofit-клиент
+            .create(OpenAIApi::class.java) // Создаем реализацию нашего интерфейса
     }
 }
