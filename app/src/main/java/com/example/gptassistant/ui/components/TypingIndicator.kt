@@ -42,20 +42,20 @@ fun TypingIndicator() {
     )
 
     AnimatedVisibility(visible = true, enter = fadeIn()) {
-        Card(
-            modifier = Modifier
+    Card(
+        modifier = Modifier
                 .widthIn(max = 180.dp)
                 .padding(horizontal = 8.dp, vertical = 4.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             shape = MaterialTheme.shapes.medium
-        ) {
-            Row(
-                modifier = Modifier
+    ) {
+        Row(
+            modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 10.dp)
-                    .fillMaxWidth(),
+                .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -68,22 +68,22 @@ fun TypingIndicator() {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Surface(
+        ) {
+            Surface(
                         modifier = Modifier.size(12.dp),
-                        shape = MaterialTheme.shapes.small,
+                shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = alpha1)
-                    ) {}
-                    Surface(
+            ) {}
+            Surface(
                         modifier = Modifier.size(12.dp),
-                        shape = MaterialTheme.shapes.small,
+                shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = alpha2)
-                    ) {}
-                    Surface(
+            ) {}
+            Surface(
                         modifier = Modifier.size(12.dp),
-                        shape = MaterialTheme.shapes.small,
+                shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = alpha3)
-                    ) {}
+            ) {}
                 }
             }
         }

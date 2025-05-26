@@ -79,44 +79,44 @@ fun MainScreen(
                 }
             }
             role == null -> {
-                Scaffold(
-                    topBar = {
-                        CenterAlignedTopAppBar(
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
                             title = { Text("Language AI Helper", style = MaterialTheme.typography.headlineSmall) },
                             actions = {
                                 IconButton(onClick = { showSettings = true }) {
                                     Icon(Icons.Outlined.Settings, contentDescription = "Настройки")
                                 }
                             }
-                        )
-                    },
-                    floatingActionButton = {
+                )
+            },
+            floatingActionButton = {
                         if (!showSettings) {
-                            FloatingActionButton(
-                                onClick = { showInfoDialog = true },
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
-                            ) {
+                FloatingActionButton(
+                    onClick = { showInfoDialog = true },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
+                ) {
                                 Icon(Icons.Outlined.Info, contentDescription = "О приложении")
                             }
-                        }
-                    },
+                }
+            },
                     floatingActionButtonPosition = FabPosition.End,
-                    containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
+            containerColor = MaterialTheme.colorScheme.background
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
                             .widthIn(max = 600.dp)
-                            .padding(horizontal = 24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                         AnimatedVisibility(visible = true, enter = fadeIn()) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Spacer(modifier = Modifier.height(32.dp))
-                                Text(
+                Spacer(modifier = Modifier.height(32.dp))
+                Text(
                                     text = "Добро пожаловать в Language AI Helper!",
                                     style = MaterialTheme.typography.bodyLarge.copy(fontStyle = FontStyle.Italic),
                                     textAlign = TextAlign.Center,
@@ -126,39 +126,39 @@ fun MainScreen(
                                 Text(
                                     text = "Language AI Helper помогает преподавателям совершенствовать навыки преподавания, а ученикам — учиться эффективнее. Используйте чат для объяснений, вопросов и совместного обучения!",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center,
+                    textAlign = TextAlign.Center,
                                     modifier = Modifier.padding(bottom = 16.dp)
-                                )
+                )
                                 Spacer(modifier = Modifier.height(16.dp))
                                 RoleSelectionScreen(onRoleSelected = { selectedRole = it })
                             }
                         }
-                    }
-                    if (showInfoDialog) {
+            }
+            if (showInfoDialog) {
                         AnimatedVisibility(
                             visible = showInfoDialog,
                             enter = fadeIn() + scaleIn(initialScale = 0.92f),
                             exit = fadeOut() + scaleOut(targetScale = 0.92f)
                         ) {
-                            AlertDialog(
-                                onDismissRequest = { showInfoDialog = false },
-                                confirmButton = {
-                                    TextButton(onClick = { showInfoDialog = false }) {
-                                        Text("OK")
-                                    }
-                                },
+                AlertDialog(
+                    onDismissRequest = { showInfoDialog = false },
+                    confirmButton = {
+                        TextButton(onClick = { showInfoDialog = false }) {
+                            Text("OK")
+                        }
+                    },
                                 title = { Text("О приложении") },
                                 text = { Text("Language AI Helper помогает преподавателям совершенствовать навыки преподавания, а ученикам — учиться эффективнее. Используйте чат для объяснений, вопросов и совместного обучения!") }
-                            )
-                        }
-                    }
+                )
+            }
+        }
                 }
             }
             else -> {
-                ChatScreen(
+        ChatScreen(
                     role = role,
-                    onBackPressed = { selectedRole = null }
-                )
+            onBackPressed = { selectedRole = null }
+        )
             }
         }
     }

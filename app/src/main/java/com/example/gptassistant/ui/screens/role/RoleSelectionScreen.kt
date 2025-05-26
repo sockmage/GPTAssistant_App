@@ -53,12 +53,12 @@ fun RoleSelectionScreen(
                 enter = fadeIn() + slideInHorizontally(initialOffsetX = { it }),
                 exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it }),
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(horizontal = 0.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(horizontal = 0.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
@@ -101,9 +101,9 @@ fun RoleSelectionScreen(
                         .widthIn(max = 600.dp)
                         .padding(horizontal = 0.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "Выберите роль",
+    ) {
+        Text(
+            text = "Выберите роль",
                         style = MaterialTheme.typography.headlineLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -111,15 +111,15 @@ fun RoleSelectionScreen(
                     Text(
                         text = "Кто вы сегодня? Роль влияет только на стиль общения в чате.",
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
+            textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 16.dp)
-                    )
+        )
                     val studentScale by animateFloatAsState(targetValue = if (selectedRole == "student") 1.04f else 1f, label = "studentScale")
                     val teacherScale by animateFloatAsState(targetValue = if (selectedRole == "teacher") 1.04f else 1f, label = "teacherScale")
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
                             .padding(vertical = 8.dp)
                             .scale(studentScale)
                             .clickable(
@@ -127,43 +127,43 @@ fun RoleSelectionScreen(
                                 indication = rememberRipple(bounded = true),
                                 onClick = { selectedRole = "student"; showRoleInfo = true }
                             ),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = studentElevation),
-                        colors = CardDefaults.elevatedCardColors(containerColor = studentContainerColor)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(20.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = studentElevation),
+            colors = CardDefaults.elevatedCardColors(containerColor = studentContainerColor)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
                                 imageVector = Icons.Outlined.Person,
-                                contentDescription = "Ученик",
-                                tint = if (selectedRole == "student") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(36.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    text = "Ученик",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = if (selectedRole == "student") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
+                    contentDescription = "Ученик",
+                    tint = if (selectedRole == "student") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(36.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Ученик",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (selectedRole == "student") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
                                     text = "Учусь, задаю вопросы",
                                     style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    color = if (selectedRole == "student") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.padding(top = 8.dp),
+                        color = if (selectedRole == "student") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        ElevatedCard(
+            modifier = Modifier
+                .fillMaxWidth()
                             .padding(vertical = 8.dp)
                             .scale(teacherScale)
                             .clickable(
@@ -171,56 +171,56 @@ fun RoleSelectionScreen(
                                 indication = rememberRipple(bounded = true),
                                 onClick = { selectedRole = "teacher"; showRoleInfo = true }
                             ),
-                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = teacherElevation),
-                        colors = CardDefaults.elevatedCardColors(containerColor = teacherContainerColor)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(20.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = teacherElevation),
+            colors = CardDefaults.elevatedCardColors(containerColor = teacherContainerColor)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
                                 imageVector = Icons.Outlined.SupervisorAccount,
-                                contentDescription = "Учитель",
-                                tint = if (selectedRole == "teacher") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(36.dp)
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    text = "Учитель",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = if (selectedRole == "teacher") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
+                    contentDescription = "Учитель",
+                    tint = if (selectedRole == "teacher") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(36.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "Учитель",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (selectedRole == "teacher") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
                                     text = "Объясняю, помогаю",
                                     style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                                    modifier = Modifier.padding(top = 8.dp),
-                                    color = if (selectedRole == "teacher") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(32.dp))
-                    AnimatedVisibility(
-                        visible = selectedRole != null,
+                        modifier = Modifier.padding(top = 8.dp),
+                        color = if (selectedRole == "teacher") MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        AnimatedVisibility(
+            visible = selectedRole != null,
                         enter = fadeIn() + slideInHorizontally(initialOffsetX = { -it }),
                         exit = fadeOut() + slideOutHorizontally(targetOffsetX = { -it }),
-                    ) {
+        ) {
                         val continueScale by animateFloatAsState(targetValue = 1f, label = "continueScale")
-                        FilledTonalButton(
-                            onClick = { selectedRole?.let { onRoleSelected(it) } },
-                            enabled = selectedRole != null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp)
+            FilledTonalButton(
+                onClick = { selectedRole?.let { onRoleSelected(it) } },
+                enabled = selectedRole != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
                                 .scale(continueScale)
-                        ) {
-                            Text("Продолжить", style = MaterialTheme.typography.titleMedium)
+            ) {
+                Text("Продолжить", style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 }
