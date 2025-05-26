@@ -5,7 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.gptassistant.ui.theme.GPTAssistantTheme
 import com.example.gptassistant.ui.screens.MainScreen
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.gptassistant.ui.screens.ThemeMode
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,14 +17,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.isSystemInDarkTheme
+import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.runtime.mutableStateOf
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            GPTAssistantTheme {
-                MainScreen()
+            var themeMode by rememberSaveable { mutableStateOf(ThemeMode.SYSTEM) }
+            GPTAssistantTheme(
+                darkTheme = when(themeMode) {
+                    ThemeMode.DARK -> true
+                    ThemeMode.LIGHT -> false
+                    ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                }
+            ) {
+                MainScreen(
+                    themeMode = themeMode,
+                    onThemeModeChange = { themeMode = it }
+                )
             }
         }
     }

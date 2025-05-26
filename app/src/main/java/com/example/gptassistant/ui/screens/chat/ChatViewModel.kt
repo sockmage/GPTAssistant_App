@@ -22,6 +22,9 @@ class ChatViewModel @Inject constructor(
     private val _isTyping = MutableStateFlow(false)
     val isTyping: StateFlow<Boolean> = _isTyping.asStateFlow()
 
+    private val _chatHistory = mutableListOf<List<Message>>()
+    val chatHistory: List<List<Message>> get() = _chatHistory
+
     fun sendMessage(content: String) {
         viewModelScope.launch {
             // Add user message
@@ -51,5 +54,12 @@ class ChatViewModel @Inject constructor(
 
     fun resetConversation() {
         _messages.value = emptyList()
+    }
+
+    fun startNewChat() {
+        if (_messages.value.isNotEmpty()) {
+            _chatHistory.add(_messages.value)
+            _messages.value = emptyList()
+        }
     }
 } 
