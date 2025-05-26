@@ -26,6 +26,8 @@ import com.example.gptassistant.ui.screens.ThemeMode
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.togetherWith
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.gptassistant.ui.screens.chat.ChatViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -39,11 +41,7 @@ fun MainScreen(
     var showAboutDialog by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
 
-    // AnimatedContent должен быть внутри MaterialTheme, а не снаружи!
-    // Поэтому MainScreen должен вызываться уже внутри Theme, а не наоборот.
-    // Если MaterialTheme вызывается выше, просто убедись, что AnimatedContent не оборачивает Theme.
-    // Если Theme вызывается внутри MainScreen, оберни всё в Theme и только потом AnimatedContent.
-    // ... existing code ...
+    val chatViewModel: ChatViewModel = hiltViewModel()
 
     AnimatedContent(
         targetState = Triple(selectedRole, showSettings, showAboutDialog),
@@ -57,7 +55,9 @@ fun MainScreen(
                     currentTheme = themeMode,
                     onThemeChange = onThemeModeChange,
                     onAboutClick = { showAboutDialog = true },
-                    onClose = { showSettings = false }
+                    onClose = { showSettings = false },
+                    onClearChat = { chatViewModel.resetConversation() },
+                    onResetRole = { selectedRole = null; showSettings = false }
                 )
                 if (showAboutDialog) {
                     AnimatedVisibility(
@@ -116,21 +116,7 @@ fun MainScreen(
                         AnimatedVisibility(visible = true, enter = fadeIn()) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Spacer(modifier = Modifier.height(32.dp))
-                Text(
-                                    text = "Добро пожаловать в Language AI Helper!",
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontStyle = FontStyle.Italic),
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "Language AI Helper помогает преподавателям совершенствовать навыки преподавания, а ученикам — учиться эффективнее. Используйте чат для объяснений, вопросов и совместного обучения!",
-                                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                RoleSelectionScreen(onRoleSelected = { selectedRole = it })
+                RoleSelectionScreen(onRoleSelected = { selectedRole = it })
                             }
                         }
             }
@@ -156,7 +142,6 @@ fun MainScreen(
             }
             else -> {
         ChatScreen(
-                    role = role,
             onBackPressed = { selectedRole = null }
         )
             }

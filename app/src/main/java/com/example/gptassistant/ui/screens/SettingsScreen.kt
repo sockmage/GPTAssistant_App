@@ -13,6 +13,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 
@@ -22,7 +25,9 @@ fun SettingsScreen(
     currentTheme: ThemeMode,
     onThemeChange: (ThemeMode) -> Unit,
     onAboutClick: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    onClearChat: () -> Unit,
+    onResetRole: () -> Unit
 ) {
     BackHandler(onBack = onClose)
     val context = LocalContext.current
@@ -72,6 +77,19 @@ fun SettingsScreen(
         }
         Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
         Card(
+            modifier = Modifier.fillMaxWidth().clickable {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Language_assistant1_bot"))
+                context.startActivity(intent)
+            },
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
+                Icon(Icons.Outlined.Info, contentDescription = "Telegram", modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Мы в Telegram", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+        Card(
             modifier = Modifier.fillMaxWidth().clickable { onAboutClick() },
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
@@ -79,15 +97,25 @@ fun SettingsScreen(
                 Text("О разработчиках", style = MaterialTheme.typography.titleMedium)
             }
         }
+        Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
         Card(
-            modifier = Modifier.fillMaxWidth().clickable {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Language_assistant1_bot"))
-                context.startActivity(intent)
-            },
+            modifier = Modifier.fillMaxWidth().clickable { onClearChat() },
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            Box(Modifier.padding(16.dp)) {
-                Text("Мы в телеграм", style = MaterialTheme.typography.titleMedium)
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
+                Icon(Icons.Outlined.Delete, contentDescription = "Очистить чат", modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Очистить чат", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+        Card(
+            modifier = Modifier.fillMaxWidth().clickable { onResetRole() },
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
+                Icon(Icons.Outlined.Refresh, contentDescription = "Сбросить роль", modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Сбросить роль", style = MaterialTheme.typography.titleMedium)
             }
         }
     }

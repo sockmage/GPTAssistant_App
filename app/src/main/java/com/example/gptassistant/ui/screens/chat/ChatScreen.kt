@@ -45,7 +45,6 @@ import androidx.activity.compose.BackHandler
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(
-    role: String,
     onBackPressed: () -> Unit,
     viewModel: ChatViewModel = hiltViewModel()
 ) {
@@ -77,20 +76,12 @@ fun ChatScreen(
                 exit = fadeOut()
             ) {
             TopAppBar(
-                    title = { Text(if (role == "student") "Ученик" else "Учитель", style = MaterialTheme.typography.headlineMedium) },
+                    title = { Text("Чат", style = MaterialTheme.typography.headlineMedium) },
                 navigationIcon = {
                     IconButton(onClick = onBackPressed) {
                             Icon(Icons.Outlined.ArrowBack, contentDescription = "Назад")
                         }
                     },
-                    actions = {
-                        IconButton(onClick = { viewModel.startNewChat() }) {
-                            Icon(Icons.Outlined.Send, contentDescription = "Новый чат")
-                        }
-                        IconButton(onClick = { viewModel.resetConversation() }) {
-                            Icon(Icons.Outlined.Delete, contentDescription = "Очистить чат")
-                    }
-                }
             )
         }
         },
