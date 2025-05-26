@@ -11,6 +11,7 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,6 +55,7 @@ fun ChatScreen(
     val listState = rememberLazyListState()
     val focusRequester = remember { FocusRequester() }
     var showHistoryDialog by remember { mutableStateOf(false) }
+    var showHelpDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
@@ -75,15 +77,20 @@ fun ChatScreen(
                 enter = fadeIn() + slideInVertically(initialOffsetY = { -40 }),
                 exit = fadeOut()
             ) {
-            TopAppBar(
+                TopAppBar(
                     title = { Text("Чат", style = MaterialTheme.typography.headlineMedium) },
-                navigationIcon = {
-                    IconButton(onClick = onBackPressed) {
+                    navigationIcon = {
+                        IconButton(onClick = onBackPressed) {
                             Icon(Icons.Outlined.ArrowBack, contentDescription = "Назад")
                         }
                     },
-            )
-        }
+                    actions = {
+                        IconButton(onClick = { showHelpDialog = true }) {
+                            Icon(Icons.Outlined.HelpOutline, contentDescription = "Помощь")
+                        }
+                    }
+                )
+            }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
@@ -242,6 +249,19 @@ fun ChatScreen(
                             }
                         }
                     }
+                )
+            }
+
+            if (showHelpDialog) {
+                AlertDialog(
+                    onDismissRequest = { showHelpDialog = false },
+                    confirmButton = {
+                        TextButton(onClick = { showHelpDialog = false }) {
+                            Text("OK")
+                        }
+                    },
+                    title = { Text("Как пользоваться чатом?") },
+                    text = { Text("В этом окне вы можете вести диалог с ИИ-помощником. Задавайте вопросы, получайте объяснения, копируйте ответы. Используйте стрелку назад для возврата к выбору роли.") }
                 )
             }
         }

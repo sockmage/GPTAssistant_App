@@ -28,6 +28,8 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.togetherWith
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gptassistant.ui.screens.chat.ChatViewModel
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -43,10 +45,32 @@ fun MainScreen(
 
     val chatViewModel: ChatViewModel = hiltViewModel()
 
+    // AlertDialog теперь вне AnimatedContent
+    if (showAboutDialog) {
+        AlertDialog(
+            onDismissRequest = { showAboutDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showAboutDialog = false }) {
+                    Text("OK")
+                }
+            },
+            title = { Text("О разработчиках") },
+            text = { Text("От @cockmage и @nssklns") }
+        )
+    }
+
     AnimatedContent(
         targetState = Triple(selectedRole, showSettings, showAboutDialog),
         transitionSpec = {
-            fadeIn() + scaleIn(initialScale = 0.96f) togetherWith fadeOut() + scaleOut(targetScale = 0.96f)
+            if (targetState.first == null && initialState.first != null) {
+                // Возврат на начальный экран — сдвиг вправо
+                slideInHorizontally(initialOffsetX = { -it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+            } else if (targetState.first != null && initialState.first == null) {
+                // Переход к чату — сдвиг влево
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+            } else {
+                fadeIn() + scaleIn(initialScale = 0.96f) togetherWith fadeOut() + scaleOut(targetScale = 0.96f)
+            }
         }
     ) { (role, settings, _) ->
         when {
@@ -59,24 +83,6 @@ fun MainScreen(
                     onClearChat = { chatViewModel.resetConversation() },
                     onResetRole = { selectedRole = null; showSettings = false }
                 )
-                if (showAboutDialog) {
-                    AnimatedVisibility(
-                        visible = showAboutDialog,
-                        enter = fadeIn() + scaleIn(initialScale = 0.92f),
-                        exit = fadeOut() + scaleOut(targetScale = 0.92f)
-                    ) {
-                        AlertDialog(
-                            onDismissRequest = { showAboutDialog = false },
-                            confirmButton = {
-                                TextButton(onClick = { showAboutDialog = false }) {
-                                    Text("OK")
-                                }
-                            },
-                            title = { Text("О разработчиках") },
-                            text = { Text("От @cockmage и @nssklns") }
-                        )
-                    }
-                }
             }
             role == null -> {
         Scaffold(
@@ -90,19 +96,6 @@ fun MainScreen(
                             }
                 )
             },
-            floatingActionButton = {
-                        if (!showSettings) {
-                FloatingActionButton(
-                    onClick = { showInfoDialog = true },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
-                ) {
-                                Icon(Icons.Outlined.Info, contentDescription = "О приложении")
-                            }
-                }
-            },
-                    floatingActionButtonPosition = FabPosition.End,
             containerColor = MaterialTheme.colorScheme.background
         ) { innerPadding ->
             Column(
