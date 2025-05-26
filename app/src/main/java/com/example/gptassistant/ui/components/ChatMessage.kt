@@ -52,13 +52,13 @@ fun ChatMessage(message: Message) {
         enter = fadeIn() + slideInVertically(initialOffsetY = { it / 2 }),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
                 .padding(vertical = 2.dp),
             contentAlignment = if (message.isUser) Alignment.CenterEnd else Alignment.CenterStart
-        ) {
-            Card(
-                modifier = Modifier
+    ) {
+        Card(
+            modifier = Modifier
                     .widthIn(max = 320.dp)
                     .padding(horizontal = 6.dp, vertical = 2.dp)
                     .combinedClickable(
@@ -79,10 +79,10 @@ fun ChatMessage(message: Message) {
                             }
                         }
                     ),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (message.isUser)
-                        MaterialTheme.colorScheme.primaryContainer
-                    else
+            colors = CardDefaults.cardColors(
+                containerColor = if (message.isUser)
+                    MaterialTheme.colorScheme.primaryContainer
+                else
                         MaterialTheme.colorScheme.surfaceVariant
                 ),
                 shape = MaterialTheme.shapes.large,
@@ -128,8 +128,8 @@ fun ChatMessage(message: Message) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End,
                             verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
+        ) {
+            Text(
                                 text = time,
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
@@ -190,8 +190,8 @@ fun parseMarkdown(text: String): List<MarkdownPart> {
                 } else {
                     result.add(MarkdownPart.Text(text.substring(i)))
                     break
-                }
-            }
+        }
+    }
             text.startsWith("*", i) -> {
                 val end = text.indexOf("*", i + 1)
                 if (end != -1) {

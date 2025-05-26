@@ -76,10 +76,10 @@ fun ChatScreen(
                 enter = fadeIn() + slideInVertically(initialOffsetY = { -40 }),
                 exit = fadeOut()
             ) {
-                TopAppBar(
+            TopAppBar(
                     title = { Text(if (role == "student") "Ученик" else "Учитель", style = MaterialTheme.typography.headlineMedium) },
-                    navigationIcon = {
-                        IconButton(onClick = onBackPressed) {
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
                             Icon(Icons.Outlined.ArrowBack, contentDescription = "Назад")
                         }
                     },
@@ -89,10 +89,10 @@ fun ChatScreen(
                         }
                         IconButton(onClick = { viewModel.resetConversation() }) {
                             Icon(Icons.Outlined.Delete, contentDescription = "Очистить чат")
-                        }
                     }
-                )
-            }
+                }
+            )
+        }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
@@ -124,8 +124,8 @@ fun ChatScreen(
                         }
                     }
                 } else {
-                    items(messages) { message ->
-                        ChatMessage(message = message)
+                items(messages) { message ->
+                    ChatMessage(message = message)
                     }
                 }
                 if (isTyping) {
@@ -244,7 +244,7 @@ fun ChatScreen(
                                                 .clickable(enabled = false) {}, // В будущем: восстановление чата
                                             leadingContent = {
                                                 Icon(Icons.Outlined.History, contentDescription = null)
-                                            }
+                    }
                                         )
                                     }
                                 }
