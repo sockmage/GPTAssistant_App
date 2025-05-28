@@ -1,4 +1,4 @@
-package com.example.gptassistant.ui.screens
+package com.example.lingro.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,7 +7,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.gptassistant.ui.screens.role.RoleSelectionScreen
+import com.example.lingro.ui.screens.role.RoleSelectionScreen
 import com.example.gptassistant.ui.screens.chat.ChatScreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.FloatingActionButton
@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gptassistant.ui.screens.chat.ChatViewModel
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -59,84 +60,86 @@ fun MainScreen(
         )
     }
 
-    AnimatedContent(
-        targetState = Triple(selectedRole, showSettings, showAboutDialog),
-        transitionSpec = {
-            if (targetState.first == null && initialState.first != null) {
-                // Возврат на начальный экран — сдвиг вправо
-                slideInHorizontally(initialOffsetX = { -it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
-            } else if (targetState.first != null && initialState.first == null) {
-                // Переход к чату — сдвиг влево
-                slideInHorizontally(initialOffsetX = { it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
-            } else {
-                fadeIn() + scaleIn(initialScale = 0.96f) togetherWith fadeOut() + scaleOut(targetScale = 0.96f)
-            }
-        }
-    ) { (role, settings, _) ->
-        when {
-            settings -> {
-                SettingsScreen(
-                    currentTheme = themeMode,
-                    onThemeChange = onThemeModeChange,
-                    onAboutClick = { showAboutDialog = true },
-                    onClose = { showSettings = false },
-                    onClearChat = { chatViewModel.resetConversation() },
-                    onResetRole = { selectedRole = null; showSettings = false }
+    Scaffold(
+        topBar = {
+            if (!showSettings && selectedRole == null) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            "Lingro",
+                            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = com.example.lingro.ui.theme.Rubik),
+                            modifier = Modifier.padding(top = 12.dp)
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = { showSettings = true }) {
+                            Icon(Icons.Outlined.Settings, contentDescription = "Настройки")
+                        }
+                    }
                 )
             }
-            role == null -> {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                            title = { Text("Language AI Helper", style = MaterialTheme.typography.headlineSmall) },
-                            actions = {
-                                IconButton(onClick = { showSettings = true }) {
-                                    Icon(Icons.Outlined.Settings, contentDescription = "Настройки")
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(innerPadding)
+        ) {
+            AnimatedContent(
+                targetState = Triple(selectedRole, showSettings, showAboutDialog),
+                transitionSpec = {
+                    if (targetState.second && !initialState.second) {
+                        // Переход к настройкам — сдвиг слева направо
+                        slideInHorizontally(initialOffsetX = { it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+                    } else if (!targetState.second && initialState.second) {
+                        // Выход из настроек — сдвиг справа налево
+                        slideInHorizontally(initialOffsetX = { -it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+                    } else if (targetState.first == null && initialState.first != null) {
+                        // Возврат на начальный экран — сдвиг вправо
+                        slideInHorizontally(initialOffsetX = { -it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
+                    } else if (targetState.first != null && initialState.first == null) {
+                        // Переход к чату — сдвиг влево
+                        slideInHorizontally(initialOffsetX = { it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
+                    } else {
+                        fadeIn() togetherWith fadeOut()
+                    }
+                }
+            ) { (role, settings, _) ->
+                when {
+                    settings -> {
+                        SettingsScreen(
+                            currentTheme = themeMode,
+                            onThemeChange = onThemeModeChange,
+                            onAboutClick = { showAboutDialog = true },
+                            onClose = { showSettings = false },
+                            onClearChat = { chatViewModel.resetConversation() },
+                            onResetRole = { selectedRole = null; showSettings = false }
+                        )
+                    }
+                    role == null -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .widthIn(max = 600.dp)
+                                .padding(horizontal = 24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            AnimatedVisibility(visible = true, enter = fadeIn()) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Spacer(modifier = Modifier.height(32.dp))
+                                    RoleSelectionScreen(onRoleSelected = { selectedRole = it })
                                 }
                             }
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                            .widthIn(max = 600.dp)
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                        AnimatedVisibility(visible = true, enter = fadeIn()) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(modifier = Modifier.height(32.dp))
-                RoleSelectionScreen(onRoleSelected = { selectedRole = it })
-                            }
                         }
-            }
-            if (showInfoDialog) {
-                        AnimatedVisibility(
-                            visible = showInfoDialog,
-                            enter = fadeIn() + scaleIn(initialScale = 0.92f),
-                            exit = fadeOut() + scaleOut(targetScale = 0.92f)
-                        ) {
-                AlertDialog(
-                    onDismissRequest = { showInfoDialog = false },
-                    confirmButton = {
-                        TextButton(onClick = { showInfoDialog = false }) {
-                            Text("OK")
-                        }
-                    },
-                                title = { Text("О приложении") },
-                                text = { Text("Language AI Helper помогает преподавателям совершенствовать навыки преподавания, а ученикам — учиться эффективнее. Используйте чат для объяснений, вопросов и совместного обучения!") }
-                )
-            }
-        }
+                    }
+                    else -> {
+                        ChatScreen(
+                            onBackPressed = { selectedRole = null }
+                        )
+                    }
                 }
-            }
-            else -> {
-        ChatScreen(
-            onBackPressed = { selectedRole = null }
-        )
             }
         }
     }

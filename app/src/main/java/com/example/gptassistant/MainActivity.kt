@@ -1,9 +1,9 @@
-package com.example.gptassistant
+package com.example.lingro
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.gptassistant.ui.theme.GPTAssistantTheme
+import com.example.lingro.ui.theme.LingroTheme
 import com.example.gptassistant.ui.screens.MainScreen
 import com.example.gptassistant.ui.screens.ThemeMode
 import androidx.compose.runtime.getValue
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             var themeMode by rememberSaveable { mutableStateOf(ThemeMode.SYSTEM) }
-            GPTAssistantTheme(
+            LingroTheme(
                 darkTheme = when(themeMode) {
                     ThemeMode.DARK -> true
                     ThemeMode.LIGHT -> false

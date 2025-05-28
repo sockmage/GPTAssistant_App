@@ -1,4 +1,4 @@
-package com.example.gptassistant.data.api
+package com.example.lingro.data.api
 
 import com.example.gptassistant.data.model.ChatRequest
 import com.example.gptassistant.data.model.ChatResponse

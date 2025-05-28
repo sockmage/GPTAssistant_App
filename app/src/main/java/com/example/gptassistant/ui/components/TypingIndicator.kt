@@ -1,4 +1,4 @@
-package com.example.gptassistant.ui.components
+package com.example.lingro.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*

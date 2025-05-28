@@ -1,4 +1,4 @@
-package com.example.gptassistant.ui.screens.chat
+package com.example.lingro.ui.screens.chat
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -51,7 +51,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.CircleShape
-import com.example.gptassistant.ui.components.TypingIndicatorAnimated
+import com.example.lingro.ui.components.TypingIndicatorAnimated
+import androidx.compose.animation.slideInHorizontally
+import com.example.lingro.ui.components.AnimatedChatMessage
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -113,6 +115,7 @@ fun ChatScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(paddingValues)
         ) {
             LazyColumn(
@@ -139,22 +142,17 @@ fun ChatScreen(
                     }
                 } else {
                 items(messages, key = { it.timestamp }) { message ->
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn() + slideInVertically(initialOffsetY = { 40 }),
-                    ) {
-                        ChatMessage(message = message)
-                    }
+                    AnimatedChatMessage(message)
                 }
                 }
             }
 
             if (isTyping) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.Center
+                        .padding(vertical = 12.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     TypingIndicatorAnimated()
                 }
