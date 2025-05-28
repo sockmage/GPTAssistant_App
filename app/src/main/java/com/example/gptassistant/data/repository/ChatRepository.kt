@@ -18,7 +18,7 @@ class ChatRepository @Inject constructor(
         if (message.contains("photo", ignoreCase = true) || message.contains("найди фото", ignoreCase = true)) {
             // Реальный поиск фото через LAIH_Proxy
             val client = OkHttpClient()
-            val url = "https://laihproxy-production.up.railway.app/image/search?q=" + java.net.URLEncoder.encode(message, "UTF-8")
+            val url = "https://laihddgimageproxy-production.up.railway.app/image/search?q=" + java.net.URLEncoder.encode(message, "UTF-8")
             val request = Request.Builder().url(url).build()
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
