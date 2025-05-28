@@ -1,4 +1,4 @@
-package com.example.gptassistant.data.repository
+package com.example.lingro.data.repository
 
 import com.example.gptassistant.data.api.OpenAIApi
 import com.example.gptassistant.data.model.ChatRequest
@@ -23,7 +23,7 @@ class ChatRepository @Inject constructor(
             return try {
                 withContext(Dispatchers.IO) {
                     val client = OkHttpClient()
-                    val url = "https://laihddgimageproxy-production.up.railway.app/image/search?q=" + java.net.URLEncoder.encode(message, "UTF-8")
+                    val url = "https://lingroddgimageproxy-production.up.railway.app/image/search?q=" + java.net.URLEncoder.encode(message, "UTF-8")
                     val request = Request.Builder()
                         .url(url)
                         .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")

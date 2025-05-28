@@ -1,4 +1,4 @@
-package com.example.gptassistant.data.model
+package com.example.lingro.data.model
 
 data class ChatRequest(
     val model: String = "gpt-4",

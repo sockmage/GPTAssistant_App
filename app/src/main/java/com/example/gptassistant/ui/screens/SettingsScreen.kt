@@ -1,4 +1,4 @@
-package com.example.gptassistant.ui.screens
+package com.example.lingro.ui.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.ui.semantics.Role
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -40,7 +42,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text("Настройки", style = MaterialTheme.typography.headlineMedium) },
+                title = { Text("Настройки", style = MaterialTheme.typography.headlineLarge) },
                 actions = {
                     IconButton(onClick = onClose) {
                         Icon(Icons.Outlined.Close, contentDescription = "Закрыть")
@@ -66,7 +68,14 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onThemeChange(mode) }
+                        .clip(MaterialTheme.shapes.large)
+                        .selectable(
+                            selected = currentTheme == mode,
+                            onClick = { onThemeChange(mode) },
+                            role = Role.RadioButton,
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = rememberRipple(bounded = true)
+                        )
                         .padding(vertical = 8.dp, horizontal = 8.dp)
                 ) {
                     RadioButton(

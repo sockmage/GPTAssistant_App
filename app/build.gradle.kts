@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.gptassistant"
+    namespace = "com.example.lingro"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.gptassistant"
+        applicationId = "com.example.lingro"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

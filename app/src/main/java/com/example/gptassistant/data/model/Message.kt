@@ -1,4 +1,4 @@
-package com.example.gptassistant.data.model
+package com.example.lingro.data.model
 
 data class Message(
     val content: String,

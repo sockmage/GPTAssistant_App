@@ -1,7 +1,5 @@
-package com.example.gptassistant
+package com.example.lingro
 
 import android.app.Application
-import dagger.hilt.android.HiltAndroidApp
 
-@HiltAndroidApp
-class GPTAssistantApp : Application() 
+class LingroApp : Application() 

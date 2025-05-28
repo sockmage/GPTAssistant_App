@@ -1,4 +1,4 @@
-package com.example.gptassistant.di
+package com.example.lingro.di
 
 import com.example.gptassistant.data.api.OpenAIApi
 import dagger.Module
@@ -32,7 +32,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://laihproxy-production.up.railway.app/")
+            .baseUrl("https://lingroproxy-production.up.railway.app/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

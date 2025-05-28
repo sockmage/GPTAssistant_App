@@ -1,34 +1,27 @@
-package com.example.gptassistant.ui.screens.role
+package com.example.lingro.ui.screens.role
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.SupervisorAccount
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.SupervisorAccount
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.ui.draw.scale
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,15 +41,17 @@ fun RoleSelectionScreen(
     )
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
-                .align(Alignment.Center)
+                .align(Alignment.TopCenter)
                 .widthIn(max = 600.dp)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .padding(top = 64.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Выберите роль",
@@ -78,13 +73,15 @@ fun RoleSelectionScreen(
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
                     .scale(studentScale)
+                    .clip(RoundedCornerShape(16.dp))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(bounded = true),
                         onClick = { selectedRole = "student" }
                     ),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = studentElevation),
-                colors = CardDefaults.elevatedCardColors(containerColor = studentContainerColor)
+                colors = CardDefaults.elevatedCardColors(containerColor = studentContainerColor),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -122,13 +119,15 @@ fun RoleSelectionScreen(
                     .fillMaxWidth()
                     .padding(vertical = 8.dp)
                     .scale(teacherScale)
+                    .clip(RoundedCornerShape(16.dp))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberRipple(bounded = true),
                         onClick = { selectedRole = "teacher" }
                     ),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = teacherElevation),
-                colors = CardDefaults.elevatedCardColors(containerColor = teacherContainerColor)
+                colors = CardDefaults.elevatedCardColors(containerColor = teacherContainerColor),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -172,17 +171,6 @@ fun RoleSelectionScreen(
                 Text("Продолжить", style = MaterialTheme.typography.titleMedium)
             }
         }
-        FloatingActionButton(
-            onClick = { showInfoDialog = true },
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            shape = MaterialTheme.shapes.large,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(24.dp)
-        ) {
-            Icon(Icons.Outlined.Info, contentDescription = "О ролях")
-        }
         if (showInfoDialog) {
             AlertDialog(
                 onDismissRequest = { showInfoDialog = false },
@@ -199,6 +187,17 @@ fun RoleSelectionScreen(
                     }
                 }
             )
+        }
+        FloatingActionButton(
+            onClick = { showInfoDialog = true },
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            shape = MaterialTheme.shapes.large,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp)
+        ) {
+            Icon(Icons.Outlined.Info, contentDescription = "О ролях")
         }
     }
 } 

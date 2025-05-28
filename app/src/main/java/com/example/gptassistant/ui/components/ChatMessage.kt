@@ -1,4 +1,4 @@
-package com.example.gptassistant.ui.components
+package com.example.lingro.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -54,6 +54,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.offset
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -301,6 +308,25 @@ fun ChatMessage(message: Message) {
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AnimatedChatMessage(message: Message) {
+    var appeared by remember { mutableStateOf(false) }
+    val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "alpha")
+    val offsetX by animateDpAsState(
+        if (appeared) 0.dp else if (message.isUser) 60.dp else (-60).dp,
+        label = "offset"
+    )
+    LaunchedEffect(Unit) { appeared = true }
+
+    Box(
+        Modifier
+            .graphicsLayer { this.alpha = alpha }
+            .offset(x = offsetX)
+    ) {
+        ChatMessage(message)
     }
 }
 

@@ -1,4 +1,4 @@
-package com.example.gptassistant.ui.screens.chat
+package com.example.lingro.ui.screens.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

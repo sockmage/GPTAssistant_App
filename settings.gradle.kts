@@ -23,5 +23,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Language AI Helper"
+rootProject.name = "Lingro"
 include(":app")
