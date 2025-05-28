@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.gptassistant.ui.components.ChatMessage
-import com.example.gptassistant.ui.components.TypingIndicator
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -49,6 +48,10 @@ import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import com.example.gptassistant.ui.components.TypingIndicatorAnimated
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -135,14 +138,25 @@ fun ChatScreen(
                         }
                     }
                 } else {
-                items(messages) { message ->
-                    ChatMessage(message = message)
+                items(messages, key = { it.timestamp }) { message ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn() + slideInVertically(initialOffsetY = { 40 }),
+                    ) {
+                        ChatMessage(message = message)
                     }
                 }
-                if (isTyping) {
-                    item {
-                        TypingIndicator()
-                    }
+                }
+            }
+
+            if (isTyping) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TypingIndicatorAnimated()
                 }
             }
 
@@ -151,7 +165,7 @@ fun ChatScreen(
                     .fillMaxWidth()
                     .padding(16.dp),
                 shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
             ) {
                 Row(
                     modifier = Modifier
@@ -225,8 +239,8 @@ fun ChatScreen(
                             }
                         },
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
                             focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                             unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
                             disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant

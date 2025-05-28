@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontStyle as ComposeFontStyle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.ui.graphics.Color
 import com.example.gptassistant.data.model.Message
 import androidx.compose.runtime.setValue
@@ -43,6 +44,16 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.painterResource
 import coil.compose.AsyncImage
 import androidx.compose.ui.draw.clip
+import android.app.DownloadManager
+import android.content.Context
+import android.net.Uri
+import android.os.Environment
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.background
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -57,73 +68,80 @@ fun ChatMessage(message: Message) {
         SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
     }
     val configuration = LocalConfiguration.current
-    val maxBubbleWidth = (configuration.screenWidthDp * 0.85f).dp
+    val maxBubbleWidth = (configuration.screenWidthDp * 0.75f).dp
+    val userBubbleColor = MaterialTheme.colorScheme.primaryContainer
+    val assistantBubbleColor = MaterialTheme.colorScheme.surfaceVariant
+    val userShape: Shape = RoundedCornerShape(topStart = 20.dp, topEnd = 4.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
+    val assistantShape: Shape = RoundedCornerShape(topStart = 4.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
+    val imageShapeUser = RoundedCornerShape(topStart = 20.dp, topEnd = 4.dp, bottomEnd = 20.dp, bottomStart = 0.dp)
+    val imageShapeAssistant = RoundedCornerShape(topStart = 4.dp, topEnd = 20.dp, bottomEnd = 0.dp, bottomStart = 20.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp, horizontal = 2.dp),
+            .padding(vertical = 2.dp, horizontal = 0.dp),
         horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start,
-        verticalAlignment = Alignment.Bottom
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        if (!message.isUser) {
-            // Кнопка копирования для ассистента
-            IconButton(
-                onClick = {
-                    clipboardManager.setText(AnnotatedString(message.content))
-                    showCopied = true
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Скопировано!")
-                    }
-                },
-                modifier = Modifier
-                    .padding(end = 4.dp)
-                    .size(28.dp)
+        // Кнопки для пользователя (слева, вертикально)
+        if (message.isUser) {
+            Column(
+                modifier = Modifier.padding(end = 8.dp).fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.ContentCopy,
-                    contentDescription = "Копировать",
-                    tint = MaterialTheme.colorScheme.outline.copy(alpha = if (showCopied) 1f else 0.6f),
-                    modifier = Modifier.size(20.dp)
-                )
+                if (message.attachmentUrl != null && message.attachmentType != null) {
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(message.attachmentUrl))
+                            showCopied = true
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Скопировано!")
+                            }
+                        },
+                        modifier = Modifier.size(20.dp).alpha(0.5f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Копировать",
+                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(message.content))
+                            showCopied = true
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Скопировано!")
+                            }
+                        },
+                        modifier = Modifier.size(20.dp).alpha(0.5f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Копировать",
+                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
             }
         }
+        // Бабл
         Card(
             modifier = Modifier
-                .wrapContentWidth()
-                .wrapContentHeight()
-                .padding(horizontal = 2.dp)
+                .wrapContentWidth(unbounded = true)
                 .widthIn(max = maxBubbleWidth)
-                .combinedClickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = true),
-                    onClick = {
-                        clipboardManager.setText(AnnotatedString(message.content))
-                        showCopied = true
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Скопировано!")
-                        }
-                    },
-                    onLongClick = {
-                        clipboardManager.setText(AnnotatedString(message.content))
-                        showCopied = true
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar("Скопировано!")
-                        }
-                    }
-                ),
+                .wrapContentHeight(),
             colors = CardDefaults.cardColors(
-                containerColor = if (message.isUser)
-                    MaterialTheme.colorScheme.primaryContainer
-                else
-                    MaterialTheme.colorScheme.surfaceVariant
+                containerColor = if (message.isUser) userBubbleColor else assistantBubbleColor
             ),
-            shape = MaterialTheme.shapes.large,
+            shape = if (message.isUser) userShape else assistantShape,
             elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-                    .wrapContentWidth()
+                    .padding(horizontal = 14.dp, vertical = 10.dp)
             ) {
                 parsed.forEach { part ->
                     when (part) {
@@ -154,10 +172,8 @@ fun ChatMessage(message: Message) {
                         is MarkdownPart.Text -> Text(
                             text = part.text,
                             fontSize = MaterialTheme.typography.bodySmall.fontSize,
-                            maxLines = 20,
-                            overflow = TextOverflow.Ellipsis,
                             color = if (message.isUser) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.wrapContentWidth()
+                            softWrap = true
                         )
                     }
                 }
@@ -170,9 +186,8 @@ fun ChatMessage(message: Message) {
                                 model = message.attachmentUrl,
                                 contentDescription = "Вложенное изображение",
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(max = 240.dp)
-                                    .clip(MaterialTheme.shapes.extraLarge)
+                                    .sizeIn(maxWidth = maxBubbleWidth, maxHeight = 220.dp)
+                                    .clip(if (message.isUser) imageShapeUser else imageShapeAssistant)
                             )
                         }
                         "file" -> {
@@ -180,7 +195,7 @@ fun ChatMessage(message: Message) {
                                 Icon(
                                     imageVector = Icons.Outlined.ContentCopy, // Можно заменить на иконку файла
                                     contentDescription = "Вложение файл",
-                                    modifier = Modifier.size(24.dp)
+                                    modifier = Modifier.size(16.dp)
                                 )
                                 Spacer(Modifier.width(8.dp))
                                 Text(
@@ -196,7 +211,7 @@ fun ChatMessage(message: Message) {
                 }
                 Spacer(Modifier.height(2.dp))
                 Row(
-                    modifier = Modifier.wrapContentWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -209,26 +224,81 @@ fun ChatMessage(message: Message) {
                 }
             }
         }
-        if (message.isUser) {
-            // Кнопка копирования для пользователя
-            IconButton(
-                onClick = {
-                    clipboardManager.setText(AnnotatedString(message.content))
-                    showCopied = true
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Скопировано!")
-                    }
-                },
-                modifier = Modifier
-                    .padding(start = 4.dp)
-                    .size(28.dp)
+        // Кнопки для ассистента (справа, вертикально)
+        if (!message.isUser) {
+            val context = LocalContext.current
+            Column(
+                modifier = Modifier.padding(start = 8.dp).fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.ContentCopy,
-                    contentDescription = "Копировать",
-                    tint = MaterialTheme.colorScheme.outline.copy(alpha = if (showCopied) 1f else 0.6f),
-                    modifier = Modifier.size(20.dp)
-                )
+                if (message.attachmentUrl != null && message.attachmentType == "image") {
+                    IconButton(
+                        onClick = {
+                            val url = message.attachmentUrl
+                            try {
+                                val request = DownloadManager.Request(Uri.parse(url))
+                                    .setTitle("Сохранение изображения")
+                                    .setDescription(url.substringAfterLast('/'))
+                                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                                    .setDestinationInExternalPublicDir(Environment.DIRECTORY_PICTURES, url.substringAfterLast('/'))
+                                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                                dm.enqueue(request)
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Изображение сохранено")
+                                }
+                            } catch (e: Exception) {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar("Ошибка сохранения: ${e.message}")
+                                }
+                            }
+                        },
+                        modifier = Modifier.size(20.dp).alpha(0.5f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Download,
+                            contentDescription = "Сохранить изображение",
+                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+                if (message.attachmentUrl != null) {
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(message.attachmentUrl))
+                            showCopied = true
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Скопировано!")
+                            }
+                        },
+                        modifier = Modifier.size(20.dp).alpha(0.5f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Копировать",
+                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(message.content))
+                            showCopied = true
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("Скопировано!")
+                            }
+                        },
+                        modifier = Modifier.size(20.dp).alpha(0.5f)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Копировать",
+                            tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
             }
         }
     }

@@ -9,83 +9,54 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
-fun TypingIndicator() {
-    val infiniteTransition = rememberInfiniteTransition(label = "typing")
-    val alpha1 by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha1"
-    )
-    val alpha2 by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500, delayMillis = 200),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha2"
-    )
-    val alpha3 by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500, delayMillis = 400),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "alpha3"
-    )
+fun TypingIndicatorAnimated() {
+    val dotCount = 3
+    val animDuration = 400
+    val delayBetween = 120
 
-    AnimatedVisibility(visible = true, enter = fadeIn()) {
-    Card(
-        modifier = Modifier
-                .widthIn(max = 180.dp)
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            shape = MaterialTheme.shapes.medium
-    ) {
-        Row(
-            modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 10.dp)
-                .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = "Ассистент печатает...",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.weight(1f)
-                )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Surface(
-                        modifier = Modifier.size(12.dp),
-                shape = MaterialTheme.shapes.small,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = alpha1)
-            ) {}
-            Surface(
-                        modifier = Modifier.size(12.dp),
-                shape = MaterialTheme.shapes.small,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = alpha2)
-            ) {}
-            Surface(
-                        modifier = Modifier.size(12.dp),
-                shape = MaterialTheme.shapes.small,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = alpha3)
-            ) {}
-                }
-            }
+    val infiniteTransition = rememberInfiniteTransition()
+    val scales = List(dotCount) { index ->
+        infiniteTransition.animateFloat(
+            initialValue = 0.7f,
+            targetValue = 1.2f,
+            animationSpec = infiniteRepeatable(
+                animation = keyframes {
+                    durationMillis = dotCount * delayBetween
+                    1.2f at delayBetween * index
+                    0.7f at delayBetween * (index + 1)
+                },
+                repeatMode = RepeatMode.Restart
+            )
+        )
+    }
+
+    Row {
+        for (i in 0 until dotCount) {
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .graphicsLayer {
+                        scaleY = scales[i].value
+                        scaleX = scales[i].value
+                    }
+                    .padding(horizontal = 3.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                        shape = CircleShape
+                    )
+            )
         }
     }
 } 
