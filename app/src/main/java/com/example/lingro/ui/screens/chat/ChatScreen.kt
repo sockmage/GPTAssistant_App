@@ -5,13 +5,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.Send
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.AttachFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,7 +22,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.gptassistant.ui.components.ChatMessage
+import com.example.lingro.ui.components.ChatMessage
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -69,7 +69,6 @@ fun ChatScreen(
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showHelpDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             viewModel.sendAttachment(it.toString(), "image")
@@ -99,12 +98,12 @@ fun ChatScreen(
                     title = { Text("Чат", style = MaterialTheme.typography.headlineMedium) },
                     navigationIcon = {
                         IconButton(onClick = onBackPressed) {
-                            Icon(Icons.Outlined.ArrowBack, contentDescription = "Назад")
+                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
                         }
                     },
                     actions = {
                         IconButton(onClick = { showHelpDialog = true }) {
-                            Icon(Icons.Outlined.HelpOutline, contentDescription = "Помощь")
+                            Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = "Помощь")
                         }
                     }
                 )
@@ -222,7 +221,7 @@ fun ChatScreen(
                                                 strokeWidth = 2.dp
                                             )
                                         } else {
-                                            Icon(Icons.Outlined.Send, contentDescription = "Отправить")
+                                            Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = "Отправить")
                                         }
                                     }
                                 }

@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.lingro.ui.theme.LingroTheme
-import com.example.gptassistant.ui.screens.MainScreen
-import com.example.gptassistant.ui.screens.ThemeMode
+import com.example.lingro.ui.screens.MainScreen
+import com.example.lingro.ui.screens.ThemeMode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable

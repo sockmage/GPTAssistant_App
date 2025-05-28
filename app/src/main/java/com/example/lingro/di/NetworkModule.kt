@@ -1,6 +1,6 @@
 package com.example.lingro.di
 
-import com.example.gptassistant.data.api.OpenAIApi
+import com.example.lingro.data.api.OpenAIApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

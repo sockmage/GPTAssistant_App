@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 @Composable
 fun TypingIndicatorAnimated() {
     val dotCount = 3
-    val animDuration = 400
     val delayBetween = 120
 
     val infiniteTransition = rememberInfiniteTransition()

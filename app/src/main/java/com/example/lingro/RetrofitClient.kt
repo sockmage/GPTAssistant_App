@@ -1,7 +1,7 @@
 package com.example.lingro
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.example.gptassistant.data.api.OpenAIApi
+import com.example.lingro.data.api.OpenAIApi
 
 object RetrofitClient {
     // Базовый URL API OpenAI

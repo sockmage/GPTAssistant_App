@@ -17,3 +17,4 @@ local.properties
 # Не добавляйте release-ключи в репозиторий!
 my-release-key.jks
 *.jks
+gradle.properties

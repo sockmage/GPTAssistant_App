@@ -2,8 +2,8 @@ package com.example.lingro.ui.screens.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.gptassistant.data.model.Message
-import com.example.gptassistant.data.repository.ChatRepository
+import com.example.lingro.data.model.Message
+import com.example.lingro.data.repository.ChatRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
