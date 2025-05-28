@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.lingro.ui.screens.role.RoleSelectionScreen
-import com.example.gptassistant.ui.screens.chat.ChatScreen
+import com.example.lingro.ui.screens.chat.ChatScreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -21,13 +21,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import com.example.gptassistant.ui.screens.SettingsScreen
-import com.example.gptassistant.ui.screens.ThemeMode
+import com.example.lingro.ui.screens.SettingsScreen
+import com.example.lingro.ui.screens.ThemeMode
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.togetherWith
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.gptassistant.ui.screens.chat.ChatViewModel
+import com.example.lingro.ui.screens.chat.ChatViewModel
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -42,7 +42,6 @@ fun MainScreen(
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var showSettings by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
-    var showInfoDialog by remember { mutableStateOf(false) }
 
     val chatViewModel: ChatViewModel = hiltViewModel()
 

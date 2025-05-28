@@ -1,9 +1,9 @@
 package com.example.lingro.data.repository
 
-import com.example.gptassistant.data.api.OpenAIApi
-import com.example.gptassistant.data.model.ChatRequest
-import com.example.gptassistant.data.model.ChatResponse
-import com.example.gptassistant.data.model.MessageRequest
+import com.example.lingro.data.api.OpenAIApi
+import com.example.lingro.data.model.ChatRequest
+import com.example.lingro.data.model.ChatResponse
+import com.example.lingro.data.model.MessageRequest
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 import okhttp3.OkHttpClient

@@ -45,7 +45,6 @@ fun LingroTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // window.statusBarColor = colorScheme.primary.toArgb() // deprecated, убираем
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
         }
     }
