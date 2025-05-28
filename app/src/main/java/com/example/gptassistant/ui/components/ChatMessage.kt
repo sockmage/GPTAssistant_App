@@ -35,6 +35,14 @@ import java.util.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.painterResource
+import coil.compose.AsyncImage
+import androidx.compose.ui.draw.clip
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -151,6 +159,39 @@ fun ChatMessage(message: Message) {
                             color = if (message.isUser) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.wrapContentWidth()
                         )
+                    }
+                }
+                // Отображение вложения, если оно есть
+                if (message.attachmentUrl != null && message.attachmentType != null) {
+                    Spacer(Modifier.height(8.dp))
+                    when (message.attachmentType) {
+                        "image" -> {
+                            AsyncImage(
+                                model = message.attachmentUrl,
+                                contentDescription = "Вложенное изображение",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 240.dp)
+                                    .clip(MaterialTheme.shapes.extraLarge)
+                            )
+                        }
+                        "file" -> {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = Icons.Outlined.ContentCopy, // Можно заменить на иконку файла
+                                    contentDescription = "Вложение файл",
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    text = message.attachmentUrl.substringAfterLast('/'),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.clickable {
+                                        // TODO: Реализовать открытие/скачивание файла
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
                 Spacer(Modifier.height(2.dp))

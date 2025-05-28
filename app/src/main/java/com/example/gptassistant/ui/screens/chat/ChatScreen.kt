@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.AttachFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,6 +43,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.History
 import androidx.compose.animation.slideInVertically
 import androidx.activity.compose.BackHandler
+import android.net.Uri
+import android.app.Activity
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.rememberCoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -57,6 +64,12 @@ fun ChatScreen(
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showHelpDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.sendAttachment(it.toString(), "image")
+        }
+    }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -165,7 +178,7 @@ fun ChatScreen(
                             },
                         placeholder = { Text("Введите сообщение...", style = MaterialTheme.typography.bodyMedium) },
                         singleLine = true,
-                        shape = MaterialTheme.shapes.large,
+                        shape = MaterialTheme.shapes.extraLarge,
                         trailingIcon = {
                             Row {
                                 AnimatedVisibility(
@@ -200,6 +213,14 @@ fun ChatScreen(
                                             Icon(Icons.Outlined.Send, contentDescription = "Отправить")
                                         }
                                     }
+                                }
+                                IconButton(
+                                    onClick = {
+                                        imagePickerLauncher.launch("image/*")
+                                    },
+                                    enabled = !isTyping
+                                ) {
+                                    Icon(Icons.Outlined.AttachFile, contentDescription = "Прикрепить файл")
                                 }
                             }
                         },

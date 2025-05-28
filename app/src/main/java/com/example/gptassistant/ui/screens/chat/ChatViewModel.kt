@@ -37,10 +37,40 @@ class ChatViewModel @Inject constructor(
             try {
                 // Get AI response
                 val response = chatRepository.getResponse(content)
+                val imageRegex = Regex("\\[image](.+?)\\[/image]")
+                val match = imageRegex.find(response)
+                if (match != null) {
+                    val imageUrl = match.groupValues[1]
+                    val aiMessage = Message(content = "", isUser = false, attachmentUrl = imageUrl, attachmentType = "image")
+                    _messages.value = _messages.value + aiMessage
+                } else {
+                    val aiMessage = Message(content = response, isUser = false)
+                    _messages.value = _messages.value + aiMessage
+                }
+            } catch (e: Exception) {
+                // Handle error
+                val errorMessage = Message(
+                    content = "Извините, произошла ошибка: ${e.message}",
+                    isUser = false
+                )
+                _messages.value = _messages.value + errorMessage
+            } finally {
+                _isTyping.value = false
+            }
+        }
+    }
+
+    fun sendAttachment(uri: String, type: String) {
+        viewModelScope.launch {
+            val userMessage = Message(content = "", isUser = true, attachmentUrl = uri, attachmentType = type)
+            _messages.value = _messages.value + userMessage
+            _isTyping.value = true
+            try {
+                // Можно реализовать отправку файла на сервер или обработку через chatRepository
+                val response = chatRepository.getResponse("[Вложение: $type]")
                 val aiMessage = Message(content = response, isUser = false)
                 _messages.value = _messages.value + aiMessage
             } catch (e: Exception) {
-                // Handle error
                 val errorMessage = Message(
                     content = "Извините, произошла ошибка: ${e.message}",
                     isUser = false
