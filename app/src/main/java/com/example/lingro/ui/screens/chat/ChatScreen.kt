@@ -132,7 +132,8 @@ fun ChatScreen(
         if (isTyping) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, bottom = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 TypingIndicatorAnimated()

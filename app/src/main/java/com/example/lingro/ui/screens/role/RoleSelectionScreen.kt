@@ -197,7 +197,7 @@ fun RoleSelectionScreen(
             shape = MaterialTheme.shapes.large,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(24.dp)
+                .padding(end = 24.dp, bottom = 48.dp)
         ) {
             Icon(Icons.Outlined.Info, contentDescription = "О ролях")
         }
