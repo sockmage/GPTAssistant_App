@@ -1,4 +1,9 @@
 # Lingro
+![Gradle](https://img.shields.io/badge/Gradle-app?style=flat&logo=Gradle&logoColor=%23000000&labelColor=%23babeff&color=%23000000)
+![Android](https://img.shields.io/badge/Android-app?style=flat&logo=Android&logoColor=%23000000&labelColor=%233DDC84&color=%23000000)
+![GoogleFonts](https://img.shields.io/badge/Google%20Fonts-app?style=flat&logo=Google%20Fonts&color=%23000000)
+![AndroidStudio](https://img.shields.io/badge/Android%20Studio-app?style=flat&logo=Android%20Studio&labelColor=%23000000&color=%23000000)
+![JetpackCompose](https://img.shields.io/badge/Jetpack%20Compose-app?style=flat&logo=Jetpack%20Compose&labelColor=%23000000&color=%23000000)
 
 Android-приложение для общения с ИИ-ассистентом на базе OpenAI GPT, с поддержкой поиска и отправки изображений, а также работы с PDF и Vision.
 
@@ -18,15 +23,6 @@ Android-приложение для общения с ИИ-ассистенто�
 - Все текстовые и PDF-запросы идут через [Lingro-Proxy (Node.js)](https://github.com/sockmage/Lingro-Proxy)
 - Поиск изображений — через [DuckDuckGo Image API for Lingro (Python FastAPI)](https://github.com/sockmage/DDG-Image-API-for-Lingro)
 - Приложение не хранит ключи OpenAI/Unsplash и не зависит от региона пользователя
-
-## Сборка и запуск
-
-```bash
-git clone https://github.com/ВАШ_РЕПОЗИТОРИЙ/Lingro.git
-cd Lingro
-./gradlew tasks # или ./gradlew build для запуска сборки вручную
-# Откройте проект в Android Studio и соберите как обычное Android-приложение
-```
 
 ## Backend
 
@@ -48,6 +44,7 @@ cd Lingro
 
 ## Инструменты и сборка
 
+- Проект собирается с помощью [Gradle](https://gradle.org/) — это современная система сборки для Android.
 - Для разработки использовалась [Android Studio](https://developer.android.com/studio) — официальная среда для Android.
 - Интерфейс реализован на [Jetpack Compose](https://developer.android.com/jetpack/compose) — декларативном UI-фреймворке от Google.
 - Для внедрения зависимостей используется [Hilt (Dagger)](https://dagger.dev/hilt/).
