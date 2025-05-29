@@ -11,8 +11,8 @@ Android-приложение для общения с ИИ-ассистенто�
 
 ## Архитектура
 
-- Все текстовые и PDF-запросы идут через Lingro-Proxy (Node.js)
-- Поиск изображений — через Lingro_DDG_Image_Proxy (Python FastAPI)
+- Все текстовые и PDF-запросы идут через [Lingro-Proxy (Node.js)](https://github.com/sockmage/Lingro-Proxy)
+- Поиск изображений — через [Lingro_DDG_Image_Proxy (Python FastAPI)](https://github.com/sockmage/DDG-Image-Proxy-for-Lingro)
 - Приложение не хранит ключи OpenAI/Unsplash и не зависит от региона пользователя
 
 ## Сборка и запуск
@@ -25,20 +25,20 @@ cd Lingro
 
 ## Backend
 
-- [Lingro-Proxy (Node.js)](./Lingro_Proxy)
-- [Lingro_DDG_Image_Proxy (Python)](./Lingro_DDG_Image_Proxy)
+- [Lingro-Proxy (Node.js)](https://github.com/sockmage/Lingro-Proxy)
+- [Lingro_DDG_Image_Proxy (Python)](https://github.com/sockmage/DDG-Image-Proxy-for-Lingro)
 
 ## Деплой backend-сервисов на Railway
 
 ### Lingro_Proxy
 1. Зайдите на [Railway](https://railway.app/), создайте новый проект.
-2. Подключите репозиторий с Lingro_Proxy.
+2. Подключите репозиторий с [Lingro-Proxy](https://github.com/sockmage/Lingro-Proxy).
 3. В настройках проекта добавьте переменную окружения `OPENAI_API_KEY`.
 4. Запустите деплой — Railway сам соберёт и запустит сервер.
 
 ### Lingro_DDG_Image_Proxy
 1. Создайте новый проект на Railway.
-2. Подключите репозиторий с Lingro_DDG_Image_Proxy.
+2. Подключите репозиторий с [Lingro_DDG_Image_Proxy](https://github.com/sockmage/DDG-Image-Proxy-for-Lingro).
 3. Railway автоматически определит Python и запустит сервис.
 
 ## License
