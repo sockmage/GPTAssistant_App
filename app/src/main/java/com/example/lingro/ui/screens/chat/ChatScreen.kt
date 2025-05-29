@@ -56,6 +56,7 @@ import androidx.compose.animation.slideInHorizontally
 import com.example.lingro.ui.components.AnimatedChatMessage
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.navigationBars
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -94,33 +95,36 @@ fun ChatScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(paddingValues)
+            .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
     ) {
-        LazyColumn(
-            state = listState,
+        Box(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (messages.isEmpty() && messageText.isBlank()) {
-                item {
-                    Box(
-                        modifier = Modifier.fillParentMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.ChatBubbleOutline,
-                            contentDescription = "Нет сообщений",
-                            modifier = Modifier.size(96.dp),
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-                        )
-                    }
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ChatBubbleOutline,
+                        contentDescription = "Нет сообщений",
+                        modifier = Modifier.size(96.dp),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                    )
                 }
             } else {
-                items(messages, key = { it.timestamp }) { message ->
-                    AnimatedChatMessage(message)
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(messages, key = { it.timestamp }) { message ->
+                        AnimatedChatMessage(message)
+                    }
                 }
             }
         }
@@ -128,8 +132,7 @@ fun ChatScreen(
         if (isTyping) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 12.dp),
+                    .fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
                 TypingIndicatorAnimated()
@@ -139,7 +142,7 @@ fun ChatScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             shape = MaterialTheme.shapes.large,
             colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {

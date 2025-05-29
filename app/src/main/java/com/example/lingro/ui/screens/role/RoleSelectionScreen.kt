@@ -26,7 +26,8 @@ import androidx.compose.animation.animateColorAsState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RoleSelectionScreen(
-    onRoleSelected: (String) -> Unit
+    onRoleSelected: (String) -> Unit,
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var showInfoDialog by remember { mutableStateOf(false) }
@@ -50,6 +51,7 @@ fun RoleSelectionScreen(
                 .align(Alignment.TopCenter)
                 .widthIn(max = 600.dp)
                 .padding(horizontal = 24.dp)
+                .padding(paddingValues)
                 .padding(top = 64.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
