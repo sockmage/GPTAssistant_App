@@ -40,3 +40,10 @@ cd Lingro
 1. Создайте новый проект на Railway.
 2. Подключите репозиторий с Lingro_DDG_Image_Proxy.
 3. Railway автоматически определит Python и запустит сервис.
+
+## License
+
+All rights reserved.
+
+This code is provided for viewing purposes only.
+Any use, copying, modification, or distribution is strictly prohibited without explicit permission from the author.
