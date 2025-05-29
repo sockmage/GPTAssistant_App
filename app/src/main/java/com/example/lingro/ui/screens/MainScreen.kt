@@ -31,6 +31,8 @@ import com.example.lingro.ui.screens.chat.ChatViewModel
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -61,21 +63,39 @@ fun MainScreen(
 
     Scaffold(
         topBar = {
-            if (!showSettings && selectedRole == null) {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            "Lingro",
-                            style = MaterialTheme.typography.headlineSmall.copy(fontFamily = com.example.lingro.ui.theme.Rubik),
-                            modifier = Modifier.padding(top = 12.dp)
-                        )
-                    },
-                    actions = {
-                        IconButton(onClick = { showSettings = true }) {
-                            Icon(Icons.Outlined.Settings, contentDescription = "Настройки")
+            when {
+                showSettings -> {}
+                selectedRole == null -> {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Text(
+                                "Lingro",
+                                style = MaterialTheme.typography.headlineSmall.copy(fontFamily = com.example.lingro.ui.theme.Rubik),
+                                modifier = Modifier.padding(top = 12.dp)
+                            )
+                        },
+                        actions = {
+                            IconButton(onClick = { showSettings = true }) {
+                                Icon(Icons.Outlined.Settings, contentDescription = "Настройки")
+                            }
                         }
-                    }
-                )
+                    )
+                }
+                else -> {
+                    TopAppBar(
+                        title = { Text("Чат", style = MaterialTheme.typography.headlineMedium) },
+                        navigationIcon = {
+                            IconButton(onClick = { selectedRole = null }) {
+                                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { showAboutDialog = true }) {
+                                Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = "Помощь")
+                            }
+                        }
+                    )
+                }
             }
         },
         containerColor = MaterialTheme.colorScheme.background
@@ -90,16 +110,12 @@ fun MainScreen(
                 targetState = Triple(selectedRole, showSettings, showAboutDialog),
                 transitionSpec = {
                     if (targetState.second && !initialState.second) {
-                        // Переход к настройкам — сдвиг слева направо
                         slideInHorizontally(initialOffsetX = { it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
                     } else if (!targetState.second && initialState.second) {
-                        // Выход из настроек — сдвиг справа налево
                         slideInHorizontally(initialOffsetX = { -it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
                     } else if (targetState.first == null && initialState.first != null) {
-                        // Возврат на начальный экран — сдвиг вправо
                         slideInHorizontally(initialOffsetX = { -it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { it }) + fadeOut()
                     } else if (targetState.first != null && initialState.first == null) {
-                        // Переход к чату — сдвиг влево
                         slideInHorizontally(initialOffsetX = { it }) + fadeIn() togetherWith slideOutHorizontally(targetOffsetX = { -it }) + fadeOut()
                     } else {
                         fadeIn() togetherWith fadeOut()
@@ -135,7 +151,8 @@ fun MainScreen(
                     }
                     else -> {
                         ChatScreen(
-                            onBackPressed = { selectedRole = null }
+                            onBackPressed = { selectedRole = null },
+                            paddingValues = innerPadding
                         )
                     }
                 }

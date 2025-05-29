@@ -54,12 +54,15 @@ import androidx.compose.foundation.shape.CircleShape
 import com.example.lingro.ui.components.TypingIndicatorAnimated
 import androidx.compose.animation.slideInHorizontally
 import com.example.lingro.ui.components.AnimatedChatMessage
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ChatScreen(
     onBackPressed: () -> Unit,
-    viewModel: ChatViewModel = hiltViewModel()
+    viewModel: ChatViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     var messageText by remember { mutableStateOf("") }
     val messages by viewModel.messages.collectAsState()
@@ -87,215 +90,190 @@ fun ChatScreen(
 
     BackHandler(onBack = onBackPressed)
 
-    Scaffold(
-        topBar = {
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { -40 }),
-                exit = fadeOut()
-            ) {
-                TopAppBar(
-                    title = { Text("Чат", style = MaterialTheme.typography.headlineMedium) },
-                    navigationIcon = {
-                        IconButton(onClick = onBackPressed) {
-                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { showHelpDialog = true }) {
-                            Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = "Помощь")
-                        }
-                    }
-                )
-            }
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(paddingValues)
+    ) {
+        LazyColumn(
+            state = listState,
             modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(paddingValues)
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (messages.isEmpty() && messageText.isBlank()) {
-                    item {
-                        Box(
-                            modifier = Modifier.fillParentMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.ChatBubbleOutline,
-                                contentDescription = "Нет сообщений",
-                                modifier = Modifier.size(96.dp),
-                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-                            )
-                        }
+            if (messages.isEmpty() && messageText.isBlank()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillParentMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ChatBubbleOutline,
+                            contentDescription = "Нет сообщений",
+                            modifier = Modifier.size(96.dp),
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                        )
                     }
-                } else {
+                }
+            } else {
                 items(messages, key = { it.timestamp }) { message ->
                     AnimatedChatMessage(message)
                 }
-                }
             }
+        }
 
-            if (isTyping) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    TypingIndicatorAnimated()
-                }
-            }
-
-            Card(
+        if (isTyping) {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Row(
+                TypingIndicatorAnimated()
+            }
+        }
+
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = MaterialTheme.shapes.large,
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = messageText,
+                    onValueChange = { messageText = it },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = messageText,
-                        onValueChange = { messageText = it },
-                        modifier = Modifier
-                            .weight(1f)
-                            .focusRequester(focusRequester)
-                            .onKeyEvent { event ->
-                                if (event.type == KeyEventType.KeyUp && event.key == Key.Enter && !event.isShiftPressed) {
-                                    if (messageText.isNotBlank() && !isTyping) {
-                                        viewModel.sendMessage(messageText)
-                                        messageText = ""
-                                    }
-                                    true
-                                } else {
-                                    false
+                        .weight(1f)
+                        .focusRequester(focusRequester)
+                        .onKeyEvent { event ->
+                            if (event.type == KeyEventType.KeyUp && event.key == Key.Enter && !event.isShiftPressed) {
+                                if (messageText.isNotBlank() && !isTyping) {
+                                    viewModel.sendMessage(messageText)
+                                    messageText = ""
                                 }
-                            },
-                        placeholder = { Text("Введите сообщение...", style = MaterialTheme.typography.bodyMedium) },
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.extraLarge,
-                        trailingIcon = {
-                            Row {
-                                AnimatedVisibility(
-                                    visible = messageText.isNotBlank(),
-                                    enter = fadeIn(),
-                                    exit = fadeOut()
-                                ) {
-                                    IconButton(onClick = { messageText = "" }) {
-                                        Icon(Icons.Outlined.Clear, contentDescription = "Очистить")
-                                    }
+                                true
+                            } else {
+                                false
+                            }
+                        },
+                    placeholder = { Text("Введите сообщение...", style = MaterialTheme.typography.bodyMedium) },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    trailingIcon = {
+                        Row {
+                            AnimatedVisibility(
+                                visible = messageText.isNotBlank(),
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                IconButton(onClick = { messageText = "" }) {
+                                    Icon(Icons.Outlined.Clear, contentDescription = "Очистить")
                                 }
-                                AnimatedVisibility(
-                                    visible = messageText.isNotBlank(),
-                                    enter = fadeIn(),
-                                    exit = fadeOut()
-                                ) {
-                                    IconButton(
-                                        onClick = {
-                                            if (messageText.isNotBlank() && !isTyping) {
-                                                viewModel.sendMessage(messageText)
-                                                messageText = ""
-                                            }
-                                        },
-                                        enabled = !isTyping
-                                    ) {
-                                        if (isTyping) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(24.dp),
-                                                strokeWidth = 2.dp
-                                            )
-                                        } else {
-                                            Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = "Отправить")
-                                        }
-                                    }
-                                }
+                            }
+                            AnimatedVisibility(
+                                visible = messageText.isNotBlank(),
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
                                 IconButton(
                                     onClick = {
-                                        imagePickerLauncher.launch("image/*")
+                                        if (messageText.isNotBlank() && !isTyping) {
+                                            viewModel.sendMessage(messageText)
+                                            messageText = ""
+                                        }
                                     },
                                     enabled = !isTyping
                                 ) {
-                                    Icon(Icons.Outlined.AttachFile, contentDescription = "Прикрепить файл")
-                                }
-                            }
-                        },
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                            unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-                            disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant
-                        )
-                    )
-                }
-            }
-
-            AnimatedVisibility(visible = showHistoryDialog) {
-                AlertDialog(
-                    onDismissRequest = { showHistoryDialog = false },
-                    confirmButton = {
-                        TextButton(onClick = { showHistoryDialog = false }) {
-                            Text("OK")
-                        }
-                    },
-                    icon = { Icon(Icons.Outlined.History, contentDescription = null) },
-                    title = { Text("История чатов") },
-                    text = {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                        ) {
-                            Column(Modifier.padding(12.dp)) {
-                                if (viewModel.chatHistory.isEmpty()) {
-                                    Text("История пуста", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 16.dp))
-                                } else {
-                                    viewModel.chatHistory.forEachIndexed { idx, chat ->
-                                        ListItem(
-                                            headlineContent = { Text("Чат #${idx + 1}") },
-                                            supportingContent = { Text("${chat.size} сообщений") },
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable(enabled = false) {}, // В будущем: восстановление чата
-                                            leadingContent = {
-                                                Icon(Icons.Outlined.History, contentDescription = null)
-                    }
+                                    if (isTyping) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(24.dp),
+                                            strokeWidth = 2.dp
                                         )
+                                    } else {
+                                        Icon(Icons.AutoMirrored.Outlined.Send, contentDescription = "Отправить")
                                     }
                                 }
                             }
-                        }
-                    }
-                )
-            }
-
-            if (showHelpDialog) {
-                AlertDialog(
-                    onDismissRequest = { showHelpDialog = false },
-                    confirmButton = {
-                        TextButton(onClick = { showHelpDialog = false }) {
-                            Text("OK")
+                            IconButton(
+                                onClick = {
+                                    imagePickerLauncher.launch("image/*")
+                                },
+                                enabled = !isTyping
+                            ) {
+                                Icon(Icons.Outlined.AttachFile, contentDescription = "Прикрепить файл")
+                            }
                         }
                     },
-                    title = { Text("Как пользоваться чатом?") },
-                    text = { Text("В этом окне вы можете вести диалог с ИИ-помощником. Задавайте вопросы, получайте объяснения, копируйте ответы. Используйте стрелку назад для возврата к выбору роли.") }
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                        disabledIndicatorColor = MaterialTheme.colorScheme.outlineVariant
+                    )
                 )
             }
+        }
+
+        AnimatedVisibility(visible = showHistoryDialog) {
+            AlertDialog(
+                onDismissRequest = { showHistoryDialog = false },
+                confirmButton = {
+                    TextButton(onClick = { showHistoryDialog = false }) {
+                        Text("OK")
+                    }
+                },
+                icon = { Icon(Icons.Outlined.History, contentDescription = null) },
+                title = { Text("История чатов") },
+                text = {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+                        Column(Modifier.padding(12.dp)) {
+                            if (viewModel.chatHistory.isEmpty()) {
+                                Text("История пуста", color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 16.dp))
+                            } else {
+                                viewModel.chatHistory.forEachIndexed { idx, chat ->
+                                    ListItem(
+                                        headlineContent = { Text("Чат #${idx + 1}") },
+                                        supportingContent = { Text("${chat.size} сообщений") },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(enabled = false) {}, // В будущем: восстановление чата
+                                        leadingContent = {
+                                            Icon(Icons.Outlined.History, contentDescription = null)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
+        if (showHelpDialog) {
+            AlertDialog(
+                onDismissRequest = { showHelpDialog = false },
+                confirmButton = {
+                    TextButton(onClick = { showHelpDialog = false }) {
+                        Text("OK")
+                    }
+                },
+                title = { Text("Как пользоваться чатом?") },
+                text = { Text("В этом окне вы можете вести диалог с ИИ-помощником. Задавайте вопросы, получайте объяснения, копируйте ответы. Используйте стрелку назад для возврата к выбору роли.") }
+            )
         }
     }
 } 
