@@ -33,6 +33,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Close
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -64,7 +65,17 @@ fun MainScreen(
     Scaffold(
         topBar = {
             when {
-                showSettings -> {}
+                showSettings -> {
+                    TopAppBar(
+                        title = { Text("Настройки", style = MaterialTheme.typography.headlineLarge) },
+                        navigationIcon = {
+                            IconButton(onClick = { showSettings = false }) {
+                                Icon(Icons.Outlined.Close, contentDescription = "Закрыть")
+                            }
+                        },
+                        actions = {}
+                    )
+                }
                 selectedRole == null -> {
                     CenterAlignedTopAppBar(
                         title = {
@@ -98,7 +109,8 @@ fun MainScreen(
                 }
             }
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -130,7 +142,8 @@ fun MainScreen(
                             onAboutClick = { showAboutDialog = true },
                             onClose = { showSettings = false },
                             onClearChat = { chatViewModel.resetConversation() },
-                            onResetRole = { selectedRole = null; showSettings = false }
+                            onResetRole = { selectedRole = null; showSettings = false },
+                            paddingValues = innerPadding
                         )
                     }
                     role == null -> {
@@ -144,7 +157,10 @@ fun MainScreen(
                             AnimatedVisibility(visible = true, enter = fadeIn()) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Spacer(modifier = Modifier.height(32.dp))
-                                    RoleSelectionScreen(onRoleSelected = { selectedRole = it })
+                                    RoleSelectionScreen(
+                                        onRoleSelected = { selectedRole = it },
+                                        paddingValues = innerPadding
+                                    )
                                 }
                             }
                         }
