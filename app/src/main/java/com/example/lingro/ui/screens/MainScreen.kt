@@ -34,6 +34,11 @@ import androidx.compose.foundation.background
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Close
+import android.speech.tts.Voice
+import com.example.lingro.ui.components.VoicePreferences
+import com.example.lingro.ui.components.TTSManager
+import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -45,8 +50,38 @@ fun MainScreen(
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var showSettings by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+    var selectedVoice by remember { mutableStateOf<Voice?>(null) }
+    var selectedLanguage by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     val chatViewModel: ChatViewModel = hiltViewModel()
+
+    // При старте — загрузить имя голоса и язык и применить
+    LaunchedEffect(Unit) {
+        val lang = VoicePreferences.loadLanguage(context)
+        if (lang != null) selectedLanguage = lang
+        val voiceName = VoicePreferences.loadVoiceName(context)
+        if (voiceName != null) {
+            val voices = TTSManager.getVoices()
+            val found = voices.find { it.name == voiceName }
+            if (found != null) selectedVoice = found
+        }
+    }
+
+    fun handleVoiceSelected(voice: Voice) {
+        selectedVoice = voice
+        scope.launch {
+            VoicePreferences.saveVoiceName(context, voice.name)
+        }
+    }
+
+    fun handleLanguageSelected(lang: String) {
+        selectedLanguage = lang
+        scope.launch {
+            VoicePreferences.saveLanguage(context, lang)
+        }
+    }
 
     // AlertDialog теперь вне AnimatedContent
     if (showAboutDialog) {
@@ -155,8 +190,10 @@ fun MainScreen(
                             onAboutClick = { showAboutDialog = true },
                             onClose = { showSettings = false },
                             onClearChat = { chatViewModel.resetConversation() },
-                            onResetRole = { selectedRole = null; showSettings = false },
-                            paddingValues = PaddingValues(0.dp) // не передаём innerPadding, чтобы не было отступа
+                            onVoiceSelected = { handleVoiceSelected(it) },
+                            selectedVoice = selectedVoice,
+                            selectedLanguage = selectedLanguage,
+                            onLanguageSelected = { handleLanguageSelected(it) }
                         )
                     }
                     role == null -> {
@@ -181,7 +218,7 @@ fun MainScreen(
                     else -> {
                         ChatScreen(
                             onBackPressed = { selectedRole = null },
-                            paddingValues = innerPadding
+                            selectedVoice = selectedVoice
                         )
                     }
                 }

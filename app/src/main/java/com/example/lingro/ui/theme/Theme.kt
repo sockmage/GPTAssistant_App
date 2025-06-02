@@ -14,17 +14,58 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.example.lingro.ui.theme.*
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = MD3Primary,
+    onPrimary = MD3OnPrimary,
+    primaryContainer = MD3PrimaryContainer,
+    onPrimaryContainer = MD3OnPrimaryContainer,
+    secondary = MD3Secondary,
+    onSecondary = MD3OnSecondary,
+    secondaryContainer = MD3SecondaryContainer,
+    onSecondaryContainer = MD3OnSecondaryContainer,
+    tertiary = MD3Tertiary,
+    onTertiary = MD3OnTertiary,
+    tertiaryContainer = MD3TertiaryContainer,
+    onTertiaryContainer = MD3OnTertiaryContainer,
+    error = MD3Error,
+    onError = MD3OnError,
+    errorContainer = MD3ErrorContainer,
+    onErrorContainer = MD3OnErrorContainer,
+    background = MD3Background,
+    onBackground = MD3OnBackground,
+    surface = MD3Surface,
+    onSurface = MD3OnSurface,
+    surfaceVariant = MD3SurfaceVariant,
+    onSurfaceVariant = MD3OnSurfaceVariant,
+    outline = MD3Outline
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = MD3Primary,
+    onPrimary = MD3OnPrimary,
+    primaryContainer = MD3PrimaryContainer,
+    onPrimaryContainer = MD3OnPrimaryContainer,
+    secondary = MD3Secondary,
+    onSecondary = MD3OnSecondary,
+    secondaryContainer = MD3SecondaryContainer,
+    onSecondaryContainer = MD3OnSecondaryContainer,
+    tertiary = MD3Tertiary,
+    onTertiary = MD3OnTertiary,
+    tertiaryContainer = MD3TertiaryContainer,
+    onTertiaryContainer = MD3OnTertiaryContainer,
+    error = MD3Error,
+    onError = MD3OnError,
+    errorContainer = MD3ErrorContainer,
+    onErrorContainer = MD3OnErrorContainer,
+    background = MD3Background,
+    onBackground = MD3OnBackground,
+    surface = MD3Surface,
+    onSurface = MD3OnSurface,
+    surfaceVariant = MD3SurfaceVariant,
+    onSurfaceVariant = MD3OnSurfaceVariant,
+    outline = MD3Outline
 )
 
 @Composable

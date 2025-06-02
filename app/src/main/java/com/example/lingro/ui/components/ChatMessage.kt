@@ -16,10 +16,11 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.FontStyle as ComposeFontStyle
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.automirrored.outlined.VolumeUp
+import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.ui.graphics.Color
 import com.example.lingro.data.model.Message
 import androidx.compose.runtime.setValue
@@ -61,10 +62,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
+import androidx.compose.animation.core.tween
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatMessage(message: Message) {
+fun ChatMessage(message: Message, onSpeak: (Message) -> Unit = {}, isSpeaking: Boolean = false, onStopSpeak: () -> Unit = {}) {
     val clipboardManager = LocalClipboardManager.current
     var showCopied by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -82,6 +84,14 @@ fun ChatMessage(message: Message) {
     val assistantShape: Shape = RoundedCornerShape(topStart = 4.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
     val imageShapeUser = RoundedCornerShape(topStart = 20.dp, topEnd = 4.dp, bottomEnd = 20.dp, bottomStart = 0.dp)
     val imageShapeAssistant = RoundedCornerShape(topStart = 4.dp, topEnd = 20.dp, bottomEnd = 0.dp, bottomStart = 20.dp)
+    val ttsScale by animateFloatAsState(
+        targetValue = if (isSpeaking) 1.25f else 1f,
+        animationSpec = tween(durationMillis = 600), label = "ttsScale"
+    )
+    val ttsAlpha by animateFloatAsState(
+        targetValue = if (isSpeaking) 1f else 0.7f,
+        animationSpec = tween(durationMillis = 600), label = "ttsAlpha"
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,6 +105,30 @@ fun ChatMessage(message: Message) {
                 modifier = Modifier.padding(end = 8.dp).fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
+                // TTS ICON
+                IconButton(
+                    onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
+                    modifier = Modifier
+                        .size(20.dp)
+                        .alpha(ttsAlpha)
+                        .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
+                ) {
+                    if (isSpeaking) {
+                        Icon(
+                            imageVector = Icons.Outlined.Stop,
+                            contentDescription = "Остановить озвучивание",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                            contentDescription = "Озвучить",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
                 if (message.attachmentUrl != null && message.attachmentType != null) {
                     IconButton(
                         onClick = {
@@ -110,7 +144,7 @@ fun ChatMessage(message: Message) {
                             imageVector = Icons.Outlined.ContentCopy,
                             contentDescription = "Копировать",
                             tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                            modifier = Modifier.size(16.dp)
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 } else {
@@ -171,7 +205,6 @@ fun ChatMessage(message: Message) {
                         )
                         is MarkdownPart.Italic -> Text(
                             text = part.text,
-                            fontStyle = ComposeFontStyle.Italic,
                             fontSize = MaterialTheme.typography.bodySmall.fontSize,
                             color = if (message.isUser) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.wrapContentWidth()
@@ -238,6 +271,30 @@ fun ChatMessage(message: Message) {
                 modifier = Modifier.padding(start = 8.dp).fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
+                // TTS ICON
+                IconButton(
+                    onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
+                    modifier = Modifier
+                        .size(20.dp)
+                        .alpha(ttsAlpha)
+                        .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
+                ) {
+                    if (isSpeaking) {
+                        Icon(
+                            imageVector = Icons.Outlined.Stop,
+                            contentDescription = "Остановить озвучивание",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                            contentDescription = "Озвучить",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
                 if (message.attachmentUrl != null && message.attachmentType == "image") {
                     IconButton(
                         onClick = {
@@ -312,7 +369,7 @@ fun ChatMessage(message: Message) {
 }
 
 @Composable
-fun AnimatedChatMessage(message: Message) {
+fun AnimatedChatMessage(message: Message, content: @Composable (Message) -> Unit = { ChatMessage(it) }) {
     var appeared by remember { mutableStateOf(false) }
     val alpha by animateFloatAsState(if (appeared) 1f else 0f, label = "alpha")
     val offsetX by animateDpAsState(
@@ -326,7 +383,7 @@ fun AnimatedChatMessage(message: Message) {
             .graphicsLayer { this.alpha = alpha }
             .offset(x = offsetX)
     ) {
-        ChatMessage(message)
+        content(message)
     }
 }
 
