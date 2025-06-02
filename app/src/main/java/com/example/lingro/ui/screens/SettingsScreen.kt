@@ -45,8 +45,8 @@ fun SettingsScreen(
     onAboutClick: () -> Unit,
     onClose: () -> Unit,
     onClearChat: () -> Unit,
-    onVoiceSelected: (Voice) -> Unit = {},
-    selectedVoice: Voice? = null,
+    onVoiceSelected: (String) -> Unit = {},
+    selectedVoice: String? = null,
     selectedLanguage: String? = null,
     onLanguageSelected: (String) -> Unit = {},
     paddingValues: PaddingValues = PaddingValues(0.dp)
@@ -58,7 +58,6 @@ fun SettingsScreen(
     var showNoVoicesDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showTTSHelpDialog by remember { mutableStateOf(false) }
-    val voices = remember { mutableStateListOf<Voice>() }
     val languageList = listOf(
         "ru" to "Русский",
         "en" to "English",
@@ -121,51 +120,14 @@ fun SettingsScreen(
             ) {
                 Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
                     ListItem(
-                        headlineContent = { Text("Язык озвучивания" + if (selectedLanguage != null) ": ${languageList.find { it.first == selectedLanguage }?.second ?: selectedLanguage}" else "", style = MaterialTheme.typography.bodyLarge) },
+                        headlineContent = { Text("Выбрать ChatGPT голос" + ": " + selectedVoice, style = MaterialTheme.typography.bodyLarge) },
                         leadingContent = {
-                            Icon(Icons.Outlined.Language, contentDescription = "Язык озвучивания", modifier = Modifier.size(24.dp))
+                            Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = "Выбрать ChatGPT голос", modifier = Modifier.size(24.dp))
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                            .clickable { showLanguageDialog = true }
-                            .padding(vertical = 2.dp)
-                    )
-                    ListItem(
-                        headlineContent = { Text("Выбрать голос", style = MaterialTheme.typography.bodyLarge) },
-                        leadingContent = {
-                            Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = "Выбрать голос", modifier = Modifier.size(24.dp))
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(0.dp))
-                            .clickable {
-                                val availableVoices = TTSManager.getVoices().filter { it.locale.language == (selectedLanguage ?: Locale.getDefault().language) }
-                                if (availableVoices.isEmpty()) {
-                                    showNoVoicesDialog = true
-                                } else {
-                                    showVoiceDialog = true
-                                }
-                            }
-                            .padding(vertical = 2.dp)
-                    )
-                    ListItem(
-                        headlineContent = { Text("Установить новые голоса", style = MaterialTheme.typography.bodyLarge) },
-                        leadingContent = {
-                            Icon(Icons.Outlined.Info, contentDescription = "Установить новые голоса", modifier = Modifier.size(24.dp))
-                        },
-                        trailingContent = {
-                            IconButton(onClick = { showTTSHelpDialog = true }) {
-                                Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = "Инструкция по голосам")
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                            .clickable {
-                                val intent = android.content.Intent(android.provider.Settings.ACTION_VOICE_INPUT_SETTINGS)
-                                context.startActivity(intent)
-                            }
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable { showVoiceDialog = true }
                             .padding(vertical = 2.dp)
                     )
                 }
@@ -273,33 +235,32 @@ fun SettingsScreen(
         )
     }
     if (showVoiceDialog) {
-        LaunchedEffect(selectedLanguage) {
-            voices.clear()
-            voices.addAll(TTSManager.getVoices().filter { it.locale.language == (selectedLanguage ?: Locale.getDefault().language) })
-        }
         AlertDialog(
             onDismissRequest = { showVoiceDialog = false },
-            title = { Text("Выберите голос") },
+            title = { Text("Выберите голос ChatGPT") },
             text = {
                 Column {
-                    if (voices.isEmpty()) {
-                        Text("Нет доступных голосов", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    } else {
-                        voices.forEach { voice ->
-                            ListItem(
-                                headlineContent = { Text(voice.name) },
-                                supportingContent = { Text(voice.locale.displayName) },
-                                leadingContent = {
-                                    RadioButton(
-                                        selected = selectedVoice?.name == voice.name,
-                                        onClick = { onVoiceSelected(voice); showVoiceDialog = false }
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onVoiceSelected(voice); showVoiceDialog = false }
-                            )
-                        }
+                    TTSManager.availableVoices.forEach { voice ->
+                        ListItem(
+                            headlineContent = { Text(voice.replaceFirstChar { it.uppercase() }) },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = selectedVoice == voice,
+                                    onClick = {
+                                        onVoiceSelected(voice)
+                                        TTSManager.setVoice(voice)
+                                        showVoiceDialog = false
+                                    }
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onVoiceSelected(voice)
+                                    TTSManager.setVoice(voice)
+                                    showVoiceDialog = false
+                                }
+                        )
                     }
                 }
             },

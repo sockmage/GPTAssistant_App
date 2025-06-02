@@ -66,7 +66,13 @@ import androidx.compose.animation.core.tween
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ChatMessage(message: Message, onSpeak: (Message) -> Unit = {}, isSpeaking: Boolean = false, onStopSpeak: () -> Unit = {}) {
+fun ChatMessage(
+    message: Message,
+    onSpeak: (Message) -> Unit = {},
+    isSpeaking: Boolean = false,
+    isTtsLoading: Boolean = false,
+    onStopSpeak: () -> Unit = {}
+) {
     val clipboardManager = LocalClipboardManager.current
     var showCopied by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -106,27 +112,39 @@ fun ChatMessage(message: Message, onSpeak: (Message) -> Unit = {}, isSpeaking: B
                 verticalArrangement = Arrangement.Center
             ) {
                 // TTS ICON
-                IconButton(
-                    onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
-                    modifier = Modifier
-                        .size(20.dp)
-                        .alpha(ttsAlpha)
-                        .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
-                ) {
-                    if (isSpeaking) {
-                        Icon(
-                            imageVector = Icons.Outlined.Stop,
-                            contentDescription = "Остановить озвучивание",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
+                if (isTtsLoading) {
+                    Box(
+                        modifier = Modifier.size(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
                         )
-                    } else {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
-                            contentDescription = "Озвучить",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
+                        modifier = Modifier
+                            .size(20.dp)
+                            .alpha(ttsAlpha)
+                            .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
+                    ) {
+                        if (isSpeaking) {
+                            Icon(
+                                imageVector = Icons.Outlined.Stop,
+                                contentDescription = "Остановить озвучивание",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                                contentDescription = "Озвучить",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
                 if (message.attachmentUrl != null && message.attachmentType != null) {
@@ -272,27 +290,39 @@ fun ChatMessage(message: Message, onSpeak: (Message) -> Unit = {}, isSpeaking: B
                 verticalArrangement = Arrangement.Center
             ) {
                 // TTS ICON
-                IconButton(
-                    onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
-                    modifier = Modifier
-                        .size(20.dp)
-                        .alpha(ttsAlpha)
-                        .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
-                ) {
-                    if (isSpeaking) {
-                        Icon(
-                            imageVector = Icons.Outlined.Stop,
-                            contentDescription = "Остановить озвучивание",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
+                if (isTtsLoading) {
+                    Box(
+                        modifier = Modifier.size(20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
                         )
-                    } else {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
-                            contentDescription = "Озвучить",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
+                        modifier = Modifier
+                            .size(20.dp)
+                            .alpha(ttsAlpha)
+                            .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
+                    ) {
+                        if (isSpeaking) {
+                            Icon(
+                                imageVector = Icons.Outlined.Stop,
+                                contentDescription = "Остановить озвучивание",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                                contentDescription = "Озвучить",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
                 if (message.attachmentUrl != null && message.attachmentType == "image") {

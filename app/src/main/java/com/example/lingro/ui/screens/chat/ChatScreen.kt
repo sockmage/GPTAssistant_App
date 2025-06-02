@@ -41,21 +41,19 @@ import com.example.lingro.ui.components.AnimatedChatMessage
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import com.example.lingro.data.model.Message
-import com.example.lingro.ui.components.TTSManager
-import android.speech.tts.Voice
-import androidx.compose.ui.platform.LocalContext
-import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
+import com.example.lingro.ui.components.TTSManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     onBackPressed: () -> Unit,
     viewModel: ChatViewModel = hiltViewModel(),
-    selectedVoice: Voice? = null
+    selectedVoice: String
 ) {
     var messageText by remember { mutableStateOf("") }
     val messages by viewModel.messages.collectAsState()
@@ -72,7 +70,7 @@ fun ChatScreen(
     }
     val context = LocalContext.current
     var speakingMessageId by remember { mutableStateOf<Long?>(null) }
-    var showNoVoicesDialog by remember { mutableStateOf(false) }
+    var ttsLoadingMessageId by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -84,22 +82,18 @@ fun ChatScreen(
         }
     }
 
-    DisposableEffect(context) {
-        TTSManager.init(context)
-        onDispose { TTSManager.shutdown() }
-    }
-
     BackHandler(onBack = onBackPressed)
 
     fun handleSpeak(message: Message) {
-        if (!TTSManager.getVoices().isNullOrEmpty() && TTSManager.getCurrentVoice() != null) {
-            speakingMessageId = message.timestamp
-            TTSManager.speak(message.content, selectedVoice) {
-                speakingMessageId = null
-            }
-        } else {
-            showNoVoicesDialog = true
-        }
+        speakingMessageId = message.timestamp
+        TTSManager.speak(
+            context,
+            message.content,
+            selectedVoice,
+            onDone = { speakingMessageId = null },
+            onLoadingStart = { ttsLoadingMessageId = message.timestamp },
+            onLoadingEnd = { ttsLoadingMessageId = null }
+        )
     }
 
     fun handleStopSpeak() {
@@ -150,6 +144,7 @@ fun ChatScreen(
                                     message = msg,
                                     onSpeak = { handleSpeak(it) },
                                     isSpeaking = speakingMessageId == msg.timestamp,
+                                    isTtsLoading = ttsLoadingMessageId == msg.timestamp,
                                     onStopSpeak = { handleStopSpeak() }
                                 )
                             }
@@ -306,30 +301,6 @@ fun ChatScreen(
                     },
                     title = { Text("Как пользоваться чатом?") },
                     text = { Text("В этом окне вы можете вести диалог с ИИ-помощником. Задавайте вопросы, получайте объяснения, копируйте ответы. Используйте стрелку назад для возврата к выбору роли.") }
-                )
-            }
-
-            if (showNoVoicesDialog) {
-                AlertDialog(
-                    onDismissRequest = { showNoVoicesDialog = false },
-                    title = { Text("Нет доступных голосов для озвучивания") },
-                    text = {
-                        Text("На вашем устройстве не установлены голоса для выбранного языка или TTS. Откройте настройки синтеза речи и скачайте нужные языки/голоса.\n\n1. Откройте настройки TTS.\n2. Выберите движок (например, Google TTS).\n3. Загрузите нужные языки и голоса.\n4. Вернитесь в приложение и попробуйте снова.")
-                    },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            showNoVoicesDialog = false
-                            val intent = Intent(Settings.ACTION_VOICE_INPUT_SETTINGS)
-                            context.startActivity(intent)
-                        }) {
-                            Text("Открыть настройки TTS")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { showNoVoicesDialog = false }) {
-                            Text("Закрыть")
-                        }
-                    }
                 )
             }
         }

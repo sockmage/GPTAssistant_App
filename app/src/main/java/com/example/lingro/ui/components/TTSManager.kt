@@ -1,83 +1,117 @@
 package com.example.lingro.ui.components
 
 import android.content.Context
-import android.speech.tts.TextToSpeech
-import android.speech.tts.Voice
-import java.util.Locale
+import android.media.MediaPlayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
+import android.util.Log
 
-@Suppress("DEPRECATION")
-object TTSManager : TextToSpeech.OnInitListener {
-    private var tts: TextToSpeech? = null
-    private var isInitialized = false
+object TTSManager {
+    private var mediaPlayer: MediaPlayer? = null
     private var onDone: (() -> Unit)? = null
-    private var currentVoice: Voice? = null
-    private var lastText: String? = null
-    private var pendingOnInit: (() -> Unit)? = null
+    private var currentVoice: String = "sora"
+    private var isSpeaking: Boolean = false
+    private var lastFile: File? = null
 
-    fun init(context: Context, onInit: (() -> Unit)? = null) {
-        if (tts == null) {
-            pendingOnInit = onInit
-            tts = TextToSpeech(context.applicationContext, this)
-        } else {
-            if (isInitialized) {
-                onInit?.invoke()
-            } else {
-                pendingOnInit = onInit
+    val availableVoices = listOf(
+        "nova", "shimmer", "echo", "onyx", "fable", "alloy", "ash", "sage", "coral"
+    )
+
+    fun setVoice(voice: String) {
+        if (voice in availableVoices) {
+            currentVoice = voice
+        }
+    }
+
+    fun getCurrentVoice(): String = currentVoice
+
+    fun speak(
+        context: Context,
+        text: String,
+        voice: String? = null,
+        onDone: (() -> Unit)? = null,
+        onLoadingStart: (() -> Unit)? = null,
+        onLoadingEnd: (() -> Unit)? = null
+    ) {
+        stop()
+        this.onDone = onDone
+        isSpeaking = true
+        val useVoice = voice ?: currentVoice
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                withContext(Dispatchers.Main) { onLoadingStart?.invoke() }
+                val url = URL("https://lingroproxy-production.up.railway.app/tts")
+                val postData = "{\"input\":\"${text.replace("\"", "\\\"") }\",\"voice\":\"$useVoice\"}"
+                Log.d("TTSManager", "Запрос к $url с голосом $useVoice и текстом: $text")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.setRequestProperty("Content-Type", "application/json")
+                conn.doOutput = true
+                conn.outputStream.use { it.write(postData.toByteArray()) }
+                if (conn.responseCode == 200) {
+                    val tempFile = File.createTempFile("tts", ".mp3", context.cacheDir)
+                    conn.inputStream.use { input ->
+                        FileOutputStream(tempFile).use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        onLoadingEnd?.invoke()
+                        playAudio(context, tempFile)
+                    }
+                    lastFile = tempFile
+                    Log.d("TTSManager", "Успешно получили и воспроизводим mp3")
+                } else {
+                    Log.e("TTSManager", "Ошибка HTTP: ${conn.responseCode}")
+                    withContext(Dispatchers.Main) {
+                        onLoadingEnd?.invoke()
+                        onDone?.invoke()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("TTSManager", "Ошибка TTS: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    onLoadingEnd?.invoke()
+                    onDone?.invoke()
+                }
             }
         }
     }
 
-    override fun onInit(status: Int) {
-        isInitialized = status == TextToSpeech.SUCCESS
-        if (isInitialized) {
-            tts?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
-                override fun onStart(utteranceId: String?) {}
-                override fun onDone(utteranceId: String?) {
-                    onDone?.invoke()
-                }
-                override fun onError(utteranceId: String?) {
-                    onDone?.invoke()
-                }
-            })
-            pendingOnInit?.invoke()
-            pendingOnInit = null
-        }
-    }
-
-    fun speak(text: String, voice: Voice? = null, onDone: (() -> Unit)? = null) {
-        if (!isInitialized) return
+    private fun playAudio(context: Context, file: File) {
         stop()
-        this.onDone = onDone
-        lastText = text
-        if (voice != null) {
-            tts?.voice = voice
-            currentVoice = voice
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(file.absolutePath)
+            setOnCompletionListener {
+                isSpeaking = false
+                onDone?.invoke()
+            }
+            setOnErrorListener { _, _, _ ->
+                isSpeaking = false
+                onDone?.invoke()
+                true
+            }
+            prepare()
+            start()
         }
-        val params = hashMapOf<String, String>()
-        params[TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID] = "LingroTTS"
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, params as java.util.HashMap<String, String>?)
     }
 
     fun stop() {
-        tts?.stop()
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
+        isSpeaking = false
         onDone?.invoke()
         onDone = null
+        lastFile?.delete()
+        lastFile = null
     }
 
-    fun shutdown() {
-        tts?.shutdown()
-        tts = null
-        isInitialized = false
-    }
-
-    fun getVoices(): List<Voice> {
-        return tts?.voices?.filter { it.locale.language == Locale.getDefault().language && !it.isNetworkConnectionRequired }?.toList() ?: emptyList()
-    }
-
-    fun setVoice(voice: Voice) {
-        currentVoice = voice
-        tts?.voice = voice
-    }
-
-    fun getCurrentVoice(): Voice? = currentVoice
+    fun isSpeaking(): Boolean = isSpeaking
 } 

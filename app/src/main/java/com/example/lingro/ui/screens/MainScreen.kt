@@ -50,36 +50,26 @@ fun MainScreen(
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var showSettings by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
-    var selectedVoice by remember { mutableStateOf<Voice?>(null) }
-    var selectedLanguage by remember { mutableStateOf<String?>(null) }
+    var selectedVoice by remember { mutableStateOf<String>(TTSManager.availableVoices.first()) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     val chatViewModel: ChatViewModel = hiltViewModel()
 
-    // При старте — загрузить имя голоса и язык и применить
+    // При старте — загрузить имя голоса и применить
     LaunchedEffect(Unit) {
-        val lang = VoicePreferences.loadLanguage(context)
-        if (lang != null) selectedLanguage = lang
         val voiceName = VoicePreferences.loadVoiceName(context)
-        if (voiceName != null) {
-            val voices = TTSManager.getVoices()
-            val found = voices.find { it.name == voiceName }
-            if (found != null) selectedVoice = found
+        if (voiceName != null && voiceName in TTSManager.availableVoices) {
+            selectedVoice = voiceName
+            TTSManager.setVoice(voiceName)
         }
     }
 
-    fun handleVoiceSelected(voice: Voice) {
+    fun handleVoiceSelected(voice: String) {
         selectedVoice = voice
+        TTSManager.setVoice(voice)
         scope.launch {
-            VoicePreferences.saveVoiceName(context, voice.name)
-        }
-    }
-
-    fun handleLanguageSelected(lang: String) {
-        selectedLanguage = lang
-        scope.launch {
-            VoicePreferences.saveLanguage(context, lang)
+            VoicePreferences.saveVoiceName(context, voice)
         }
     }
 
@@ -191,9 +181,7 @@ fun MainScreen(
                             onClose = { showSettings = false },
                             onClearChat = { chatViewModel.resetConversation() },
                             onVoiceSelected = { handleVoiceSelected(it) },
-                            selectedVoice = selectedVoice,
-                            selectedLanguage = selectedLanguage,
-                            onLanguageSelected = { handleLanguageSelected(it) }
+                            selectedVoice = selectedVoice
                         )
                     }
                     role == null -> {
@@ -218,6 +206,7 @@ fun MainScreen(
                     else -> {
                         ChatScreen(
                             onBackPressed = { selectedRole = null },
+                            viewModel = chatViewModel,
                             selectedVoice = selectedVoice
                         )
                     }
