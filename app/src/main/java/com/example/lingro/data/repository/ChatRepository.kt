@@ -16,7 +16,7 @@ import kotlinx.coroutines.withContext
 class ChatRepository @Inject constructor(
     private val api: OpenAIApi
 ) {
-    suspend fun getResponse(message: String, model: String = "gpt-4"): String {
+    suspend fun getResponse(message: String, model: String = "gpt-4o"): String {
         android.util.Log.d("HTTP", "getResponse вызван с message: $message")
         if (message.contains("photo", ignoreCase = true) || message.contains("найди фото", ignoreCase = true)) {
             android.util.Log.d("HTTP", "Условие поиска фото сработало для: $message")

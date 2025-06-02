@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,26 +59,27 @@ fun SettingsScreen(
                 modifier = Modifier.padding(bottom = 20.dp)
             ) {
                 Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
-                    ThemeMode.entries.forEach { mode ->
-                        Surface(
-                            shape = MaterialTheme.shapes.medium,
-                            color = Color.Transparent
-                        ) {
-                            ListItem(
-                                headlineContent = { Text(mode.displayName, style = MaterialTheme.typography.bodyLarge) },
-                                leadingContent = {
-                                    RadioButton(
-                                        selected = currentTheme == mode,
-                                        onClick = { onThemeChange(mode) },
-                                        colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                                    )
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { onThemeChange(mode) }
-                                    .padding(vertical = 2.dp)
-                            )
+                    ThemeMode.entries.forEachIndexed { idx, mode ->
+                        val shape = when (idx) {
+                            0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                            ThemeMode.entries.lastIndex -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                            else -> RoundedCornerShape(0.dp)
                         }
+                        ListItem(
+                            headlineContent = { Text(mode.displayName, style = MaterialTheme.typography.bodyLarge) },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = currentTheme == mode,
+                                    onClick = { onThemeChange(mode) },
+                                    colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(shape)
+                                .clickable { onThemeChange(mode) }
+                                .padding(vertical = 2.dp)
+                        )
                     }
                 }
             }
@@ -91,33 +93,25 @@ fun SettingsScreen(
                 modifier = Modifier.padding(bottom = 20.dp)
             ) {
                 Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = Color.Transparent
-                    ) {
+                    listOf(
+                        Pair("Очистить чат", Icons.Outlined.Delete to { showClearDialog = true }),
+                        Pair("Сбросить роль", Icons.Outlined.Refresh to { onResetRole() })
+                    ).forEachIndexed { idx, (text, pair) ->
+                        val (icon, onClick) = pair
+                        val shape = when (idx) {
+                            0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                            1 -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                            else -> RoundedCornerShape(0.dp)
+                        }
                         ListItem(
-                            headlineContent = { Text("Очистить чат", style = MaterialTheme.typography.bodyLarge) },
+                            headlineContent = { Text(text, style = MaterialTheme.typography.bodyLarge) },
                             leadingContent = {
-                                Icon(Icons.Outlined.Delete, contentDescription = "Очистить чат", modifier = Modifier.size(24.dp))
+                                Icon(icon, contentDescription = text, modifier = Modifier.size(24.dp))
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { showClearDialog = true }
-                                .padding(vertical = 2.dp)
-                        )
-                    }
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = Color.Transparent
-                    ) {
-                        ListItem(
-                            headlineContent = { Text("Сбросить роль", style = MaterialTheme.typography.bodyLarge) },
-                            leadingContent = {
-                                Icon(Icons.Outlined.Refresh, contentDescription = "Сбросить роль", modifier = Modifier.size(24.dp))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onResetRole() }
+                                .clip(shape)
+                                .clickable { onClick() }
                                 .padding(vertical = 2.dp)
                         )
                     }
@@ -133,36 +127,27 @@ fun SettingsScreen(
                 modifier = Modifier.padding(bottom = 20.dp)
             ) {
                 Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = Color.Transparent
-                    ) {
+                    listOf(
+                        Triple("Мы в Telegram", Icons.Outlined.Send) {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Language_assistant1_bot"))
+                            context.startActivity(intent)
+                        },
+                        Triple("О разработчиках", Icons.Outlined.Info) { onAboutClick() }
+                    ).forEachIndexed { idx, (text, icon, onClick) ->
+                        val shape = when (idx) {
+                            0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                            1 -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+                            else -> RoundedCornerShape(0.dp)
+                        }
                         ListItem(
-                            headlineContent = { Text("Мы в Telegram", style = MaterialTheme.typography.bodyLarge) },
+                            headlineContent = { Text(text, style = MaterialTheme.typography.bodyLarge) },
                             leadingContent = {
-                                Icon(Icons.Outlined.Send, contentDescription = "Telegram", modifier = Modifier.size(24.dp))
+                                Icon(icon, contentDescription = text, modifier = Modifier.size(24.dp))
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable {
-                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Language_assistant1_bot"))
-                                    context.startActivity(intent)
-                                }
-                                .padding(vertical = 2.dp)
-                        )
-                    }
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = Color.Transparent
-                    ) {
-                        ListItem(
-                            headlineContent = { Text("О разработчиках", style = MaterialTheme.typography.bodyLarge) },
-                            leadingContent = {
-                                Icon(Icons.Outlined.Info, contentDescription = "О разработчиках", modifier = Modifier.size(24.dp))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onAboutClick() }
+                                .clip(shape)
+                                .clickable { onClick() }
                                 .padding(vertical = 2.dp)
                         )
                     }

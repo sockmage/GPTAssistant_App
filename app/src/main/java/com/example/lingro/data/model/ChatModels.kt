@@ -1,7 +1,7 @@
 package com.example.lingro.data.model
 
 data class ChatRequest(
-    val model: String = "gpt-4",
+    val model: String = "gpt-4o",
     val messages: List<MessageRequest>,
     val temperature: Double = 0.7,
     val max_tokens: Int = 1000
