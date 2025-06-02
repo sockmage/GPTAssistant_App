@@ -98,6 +98,10 @@ fun ChatMessage(
         targetValue = if (isSpeaking) 1f else 0.7f,
         animationSpec = tween(durationMillis = 600), label = "ttsAlpha"
     )
+    // TTS ICON
+    val hasVisibleText = message.content.isNotBlank()
+    val isImageOnlyMessage = message.attachmentUrl != null && !hasVisibleText
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,38 +116,40 @@ fun ChatMessage(
                 verticalArrangement = Arrangement.Center
             ) {
                 // TTS ICON
-                if (isTtsLoading) {
-                    Box(
-                        modifier = Modifier.size(20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                    }
-                } else {
-                    IconButton(
-                        onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
-                        modifier = Modifier
-                            .size(20.dp)
-                            .alpha(ttsAlpha)
-                            .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
-                    ) {
-                        if (isSpeaking) {
-                            Icon(
-                                imageVector = Icons.Outlined.Stop,
-                                contentDescription = "Остановить озвучивание",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(16.dp)
+                if (!isImageOnlyMessage) {
+                    if (isTtsLoading) {
+                        Box(
+                            modifier = Modifier.size(20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
                             )
-                        } else {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
-                                contentDescription = "Озвучить",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(16.dp)
-                            )
+                        }
+                    } else {
+                        IconButton(
+                            onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
+                            modifier = Modifier
+                                .size(20.dp)
+                                .alpha(ttsAlpha)
+                                .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
+                        ) {
+                            if (isSpeaking) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Stop,
+                                    contentDescription = "Остановить озвучивание",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                                    contentDescription = "Озвучить",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -290,38 +296,40 @@ fun ChatMessage(
                 verticalArrangement = Arrangement.Center
             ) {
                 // TTS ICON
-                if (isTtsLoading) {
-                    Box(
-                        modifier = Modifier.size(20.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            strokeWidth = 2.dp
-                        )
-                    }
-                } else {
-                    IconButton(
-                        onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
-                        modifier = Modifier
-                            .size(20.dp)
-                            .alpha(ttsAlpha)
-                            .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
-                    ) {
-                        if (isSpeaking) {
-                            Icon(
-                                imageVector = Icons.Outlined.Stop,
-                                contentDescription = "Остановить озвучивание",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(16.dp)
+                if (!isImageOnlyMessage) {
+                    if (isTtsLoading) {
+                        Box(
+                            modifier = Modifier.size(20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
                             )
-                        } else {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
-                                contentDescription = "Озвучить",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(16.dp)
-                            )
+                        }
+                    } else {
+                        IconButton(
+                            onClick = { if (isSpeaking) onStopSpeak() else onSpeak(message) },
+                            modifier = Modifier
+                                .size(20.dp)
+                                .alpha(ttsAlpha)
+                                .graphicsLayer { scaleX = ttsScale; scaleY = ttsScale }
+                        ) {
+                            if (isSpeaking) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Stop,
+                                    contentDescription = "Остановить озвучивание",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                                    contentDescription = "Озвучить",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                         }
                     }
                 }

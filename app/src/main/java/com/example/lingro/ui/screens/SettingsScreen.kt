@@ -49,7 +49,8 @@ fun SettingsScreen(
     selectedVoice: String? = null,
     selectedLanguage: String? = null,
     onLanguageSelected: (String) -> Unit = {},
-    paddingValues: PaddingValues = PaddingValues(0.dp)
+    paddingValues: PaddingValues = PaddingValues(0.dp),
+    ttsManager: TTSManager
 ) {
     BackHandler(onBack = onClose)
     val context = LocalContext.current
@@ -120,7 +121,7 @@ fun SettingsScreen(
             ) {
                 Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
                     ListItem(
-                        headlineContent = { Text("Выбрать ChatGPT голос" + ": " + selectedVoice, style = MaterialTheme.typography.bodyLarge) },
+                        headlineContent = { Text("Изменить голос", style = MaterialTheme.typography.bodyLarge) },
                         leadingContent = {
                             Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = "Выбрать ChatGPT голос", modifier = Modifier.size(24.dp))
                         },
@@ -240,7 +241,7 @@ fun SettingsScreen(
             title = { Text("Выберите голос ChatGPT") },
             text = {
                 Column {
-                    TTSManager.availableVoices.forEach { voice ->
+                    ttsManager.availableVoices.forEach { voice ->
                         ListItem(
                             headlineContent = { Text(voice.replaceFirstChar { it.uppercase() }) },
                             leadingContent = {
@@ -248,7 +249,7 @@ fun SettingsScreen(
                                     selected = selectedVoice == voice,
                                     onClick = {
                                         onVoiceSelected(voice)
-                                        TTSManager.setVoice(voice)
+                                        ttsManager.setVoice(voice)
                                         showVoiceDialog = false
                                     }
                                 )
@@ -257,7 +258,7 @@ fun SettingsScreen(
                                 .fillMaxWidth()
                                 .clickable {
                                     onVoiceSelected(voice)
-                                    TTSManager.setVoice(voice)
+                                    ttsManager.setVoice(voice)
                                     showVoiceDialog = false
                                 }
                         )

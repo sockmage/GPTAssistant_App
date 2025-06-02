@@ -2,50 +2,49 @@ package com.example.lingro.ui.components
 
 import android.content.Context
 import android.media.MediaPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import android.util.Log
+import kotlinx.coroutines.*
 import java.io.File
-import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import android.media.AudioAttributes
+import java.io.FileOutputStream
 
-object TTSManager {
+// Make TTSManager a class that takes Context in constructor
+class TTSManager(private val context: Context) {
+
     private var mediaPlayer: MediaPlayer? = null
+    private var currentVoice by mutableStateOf("alloy") // Default voice
     private var onDone: (() -> Unit)? = null
-    private var currentVoice: String = "sora"
-    private var isSpeaking: Boolean = false
+    private var isSpeaking by mutableStateOf(false)
     private var lastFile: File? = null
 
-    val availableVoices = listOf(
-        "nova", "shimmer", "echo", "onyx", "fable", "alloy", "ash", "sage", "coral"
-    )
+    val availableVoices = listOf("alloy", "echo", "fable", "onyx", "nova", "shimmer", "ash", "sage", "coral")
 
     fun setVoice(voice: String) {
-        if (voice in availableVoices) {
+        if (availableVoices.contains(voice)) {
             currentVoice = voice
         }
     }
 
-    fun getCurrentVoice(): String = currentVoice
-
-    fun speak(
-        context: Context,
+    suspend fun speak(
         text: String,
-        voice: String? = null,
-        onDone: (() -> Unit)? = null,
-        onLoadingStart: (() -> Unit)? = null,
-        onLoadingEnd: (() -> Unit)? = null
+        voice: String,
+        onDone: () -> Unit,
+        onLoadingStart: () -> Unit,
+        onLoadingEnd: () -> Unit
     ) {
         stop()
         this.onDone = onDone
         isSpeaking = true
-        val useVoice = voice ?: currentVoice
+        val useVoice = voice
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                withContext(Dispatchers.Main) { onLoadingStart?.invoke() }
+                withContext(Dispatchers.Main) { onLoadingStart.invoke() }
                 val url = URL("https://lingroproxy-production.up.railway.app/tts")
                 val postData = "{\"input\":\"${text.replace("\"", "\\\"") }\",\"voice\":\"$useVoice\"}"
                 Log.d("TTSManager", "Запрос к $url с голосом $useVoice и текстом: $text")
@@ -62,29 +61,29 @@ object TTSManager {
                         }
                     }
                     withContext(Dispatchers.Main) {
-                        onLoadingEnd?.invoke()
-                        playAudio(context, tempFile)
+                        onLoadingEnd.invoke()
+                        playAudio(tempFile)
                     }
                     lastFile = tempFile
                     Log.d("TTSManager", "Успешно получили и воспроизводим mp3")
                 } else {
                     Log.e("TTSManager", "Ошибка HTTP: ${conn.responseCode}")
                     withContext(Dispatchers.Main) {
-                        onLoadingEnd?.invoke()
-                        onDone?.invoke()
+                        onLoadingEnd.invoke()
+                        onDone.invoke()
                     }
                 }
             } catch (e: Exception) {
                 Log.e("TTSManager", "Ошибка TTS: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    onLoadingEnd?.invoke()
-                    onDone?.invoke()
+                    onLoadingEnd.invoke()
+                    onDone.invoke()
                 }
             }
         }
     }
 
-    private fun playAudio(context: Context, file: File) {
+    private fun playAudio(file: File) {
         stop()
         mediaPlayer = MediaPlayer().apply {
             setDataSource(file.absolutePath)
@@ -112,6 +111,4 @@ object TTSManager {
         lastFile?.delete()
         lastFile = null
     }
-
-    fun isSpeaking(): Boolean = isSpeaking
 } 

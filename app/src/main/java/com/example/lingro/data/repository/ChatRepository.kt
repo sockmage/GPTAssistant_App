@@ -4,65 +4,50 @@ import com.example.lingro.data.api.OpenAIApi
 import com.example.lingro.data.model.ChatRequest
 import com.example.lingro.data.model.ChatResponse
 import com.example.lingro.data.model.MessageRequest
+import com.example.lingro.data.model.ImageGenerationRequest
+import com.example.lingro.data.model.ImageGenerationResponse
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 
 @ViewModelScoped
 class ChatRepository @Inject constructor(
     private val api: OpenAIApi
 ) {
-    suspend fun getResponse(message: String, model: String = "gpt-4o"): String {
-        android.util.Log.d("HTTP", "getResponse вызван с message: $message")
-        if (message.contains("photo", ignoreCase = true) || message.contains("найди фото", ignoreCase = true)) {
-            android.util.Log.d("HTTP", "Условие поиска фото сработало для: $message")
-            return try {
-                withContext(Dispatchers.IO) {
-                    val client = OkHttpClient()
-                    val url = "https://lingroddgimageproxy-production.up.railway.app/image/search?q=" + java.net.URLEncoder.encode(message, "UTF-8")
-                    val request = Request.Builder()
-                        .url(url)
-                        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
-                        .build()
-                    val response = client.newCall(request).execute()
-                    val code = response.code
-                    val messageResp = response.message
-                    val headers = response.headers
-                    val body = response.body?.string()
-                    android.util.Log.d("HTTP", "URL: $url")
-                    android.util.Log.d("HTTP", "Code: $code")
-                    android.util.Log.d("HTTP", "Message: $messageResp")
-                    android.util.Log.d("HTTP", "Headers: $headers")
-                    android.util.Log.d("HTTP", "Body: ${body ?: "null"}")
-                    if (body == null) {
-                        return@withContext "Ошибка поиска изображения: code=$code, message=$messageResp, body is null"
-                    }
-                    try {
-                        val imageUrl = org.json.JSONObject(body).optString("image")
-                        if (imageUrl.isNotBlank()) {
-                            val safeImageUrl = if (imageUrl.startsWith("http://")) imageUrl.replaceFirst("http://", "https://") else imageUrl
-                            return@withContext "[image]$safeImageUrl[/image]"
-                        } else {
-                            return@withContext "Ошибка поиска изображения: code=$code, message=$messageResp, body=$body"
-                        }
-                    } catch (e: Exception) {
-                        return@withContext "Ошибка парсинга JSON: ${e.message}, code=$code, message=$messageResp, body=$body"
-                    }
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("HTTP", "Ошибка при поиске фото: ${e.message}", e)
-                "Ошибка при поиске фото: ${e.message}"
-            }
-        }
+
+    // Обычный текстовый чат
+    suspend fun getChatResponse(message: String): String {
         val request = ChatRequest(
             messages = listOf(MessageRequest("user", message)),
-            model = model
+            model = "gpt-4o"
         )
         val response = api.chat(authorization = "", request = request)
         return response.choices.firstOrNull()?.message?.content ?: "Извините, не удалось получить ответ."
+    }
+
+    // Анализ изображения с текстом (Vision)
+    suspend fun getVisionResponse(file: File, prompt: String, model: String = "gpt-4o"): String {
+        val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
+        val promptPart = prompt.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        val response = api.chatVision(file = filePart, prompt = promptPart)
+        return response.choices.firstOrNull()?.message?.content ?: "Извините, не удалось проанализировать изображение."
+    }
+
+    // Генерация изображения (DALL·E 3)
+    suspend fun generateImage(prompt: String, size: String = "1024x1024"): String {
+        val request = ImageGenerationRequest(
+            prompt = prompt,
+            n = 1,
+            size = size
+        )
+        val response = api.generateImage(request = request)
+        // DALL·E 3 возвращает список объектов data, каждый содержит url
+        return response.data.firstOrNull()?.url ?: "Извините, не удалось сгенерировать изображение."
     }
 } 

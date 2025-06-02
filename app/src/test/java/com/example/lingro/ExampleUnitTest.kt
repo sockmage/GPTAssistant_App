@@ -1,4 +1,4 @@
-package com.example.gptassistant
+package com.example.lingro
 
 import org.junit.Test
 

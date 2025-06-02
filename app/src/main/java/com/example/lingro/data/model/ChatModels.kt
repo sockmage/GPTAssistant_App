@@ -31,4 +31,20 @@ data class Usage(
     val prompt_tokens: Int,
     val completion_tokens: Int,
     val total_tokens: Int
+)
+
+data class ImageGenerationRequest(
+    val prompt: String,
+    val n: Int = 1,
+    val size: String = "1024x1024"
+)
+
+data class ImageGenerationResponse(
+    val created: Long,
+    val data: List<ImageData>
+)
+
+data class ImageData(
+    val url: String? = null,
+    val b64_json: String? = null // Опционально, если используем b64
 ) 

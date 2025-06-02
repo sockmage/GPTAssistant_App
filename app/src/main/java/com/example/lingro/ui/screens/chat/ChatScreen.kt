@@ -63,14 +63,17 @@ fun ChatScreen(
     var showHistoryDialog by remember { mutableStateOf(false) }
     var showHelpDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            viewModel.sendAttachment(it.toString(), "image")
+            viewModel.sendMessage(context, messageText, it)
+            messageText = ""
         }
     }
-    val context = LocalContext.current
+    val ttsManager = remember { TTSManager(context) }
     var speakingMessageId by remember { mutableStateOf<Long?>(null) }
     var ttsLoadingMessageId by remember { mutableStateOf<Long?>(null) }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -86,18 +89,19 @@ fun ChatScreen(
 
     fun handleSpeak(message: Message) {
         speakingMessageId = message.timestamp
-        TTSManager.speak(
-            context,
-            message.content,
-            selectedVoice,
-            onDone = { speakingMessageId = null },
-            onLoadingStart = { ttsLoadingMessageId = message.timestamp },
-            onLoadingEnd = { ttsLoadingMessageId = null }
-        )
+        coroutineScope.launch {
+            ttsManager.speak(
+                message.content,
+                selectedVoice,
+                onDone = { speakingMessageId = null },
+                onLoadingStart = { ttsLoadingMessageId = message.timestamp },
+                onLoadingEnd = { ttsLoadingMessageId = null }
+            )
+        }
     }
 
     fun handleStopSpeak() {
-        TTSManager.stop()
+        ttsManager.stop()
         speakingMessageId = null
     }
 
@@ -186,7 +190,7 @@ fun ChatScreen(
                             .onKeyEvent { event ->
                                 if (event.type == KeyEventType.KeyUp && event.key == Key.Enter && !event.isShiftPressed) {
                                     if (messageText.isNotBlank() && !isTyping) {
-                                        viewModel.sendMessage(messageText)
+                                        viewModel.sendMessage(context, messageText)
                                         messageText = ""
                                     }
                                     true
@@ -216,7 +220,7 @@ fun ChatScreen(
                                     IconButton(
                                         onClick = {
                                             if (messageText.isNotBlank() && !isTyping) {
-                                                viewModel.sendMessage(messageText)
+                                                viewModel.sendMessage(context, messageText)
                                                 messageText = ""
                                             }
                                         },

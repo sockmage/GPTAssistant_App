@@ -1,5 +1,6 @@
 package com.example.lingro.ui.screens.chat
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lingro.data.model.Message
@@ -10,6 +11,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import android.content.Context
+import java.io.File
+import java.io.FileOutputStream
+import android.util.Log
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
@@ -25,28 +30,60 @@ class ChatViewModel @Inject constructor(
     private val _chatHistory = mutableListOf<List<Message>>()
     val chatHistory: List<List<Message>> get() = _chatHistory
 
-    fun sendMessage(content: String) {
+    fun sendMessage(context: Context, content: String, attachmentUri: Uri? = null) {
         viewModelScope.launch {
-            // Add user message
-            val userMessage = Message(content = content, isUser = true)
+            // Add user message (with attachment if exists)
+            val userMessage = Message(content = content, isUser = true, attachmentUrl = attachmentUri?.toString(), attachmentType = if (attachmentUri != null) "image" else null)
             _messages.value = _messages.value + userMessage
 
             // Show typing indicator
             _isTyping.value = true
 
             try {
-                // Get AI response
-                val response = chatRepository.getResponse(content)
-                val imageRegex = Regex("\\[image](.+?)\\[/image]")
-                val match = imageRegex.find(response)
-                if (match != null) {
-                    val imageUrl = match.groupValues[1]
-                    val aiMessage = Message(content = "", isUser = false, attachmentUrl = imageUrl, attachmentType = "image")
-                    _messages.value = _messages.value + aiMessage
+                val aiResponseContent: String
+                var generatedImageUrl: String? = null
+
+                if (attachmentUri != null) {
+                    // Vision (текст + изображение)
+                    // Нужно получить File из Uri. Простой способ для примера:
+                    val file = getFileFromUri(context, attachmentUri)
+                    if (file != null) {
+                        aiResponseContent = chatRepository.getVisionResponse(file, content)
+                    } else {
+                        aiResponseContent = "Ошибка: не удалось обработать файл изображения."
+                    }
+                } else if (content.trim().startsWith("сгенерируй картинку", ignoreCase = true) ||
+                           content.trim().startsWith("нарисуй", ignoreCase = true) ||
+                           content.trim().startsWith("создай изображение", ignoreCase = true)) {
+                    // Генерация изображения (DALL·E 3)
+                    val prompt = content.trim()
+                        .replaceFirst("сгенерируй картинку", "", ignoreCase = true)
+                        .replaceFirst("нарисуй", "", ignoreCase = true)
+                        .replaceFirst("создай изображение", "", ignoreCase = true)
+                        .trim()
+                    
+                    // Log the extracted prompt
+                    Log.d("ChatViewModel", "Generated image prompt: '$prompt'")
+
+                    if (prompt.isNotBlank()) {
+                        generatedImageUrl = chatRepository.generateImage(prompt)
+                        aiResponseContent = "Изображение сгенерировано:"
+                    } else {
+                        aiResponseContent = "Пожалуйста, укажите, что сгенерировать."
+                    }
                 } else {
-                    val aiMessage = Message(content = response, isUser = false)
-                    _messages.value = _messages.value + aiMessage
+                    // Обычный текстовый чат
+                    aiResponseContent = chatRepository.getChatResponse(content)
                 }
+
+                // Add AI response
+                val aiMessage = if (generatedImageUrl != null) {
+                    Message(content = aiResponseContent, isUser = false, attachmentUrl = generatedImageUrl, attachmentType = "image")
+                } else {
+                    Message(content = aiResponseContent, isUser = false)
+                }
+                _messages.value = _messages.value + aiMessage
+
             } catch (e: Exception) {
                 // Handle error
                 val errorMessage = Message(
@@ -60,25 +97,20 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendAttachment(uri: String, type: String) {
-        viewModelScope.launch {
-            val userMessage = Message(content = "", isUser = true, attachmentUrl = uri, attachmentType = type)
-            _messages.value = _messages.value + userMessage
-            _isTyping.value = true
-            try {
-                // Можно реализовать отправку файла на сервер или обработку через chatRepository
-                val response = chatRepository.getResponse("[Вложение: $type]")
-                val aiMessage = Message(content = response, isUser = false)
-                _messages.value = _messages.value + aiMessage
-            } catch (e: Exception) {
-                val errorMessage = Message(
-                    content = "Извините, произошла ошибка: ${e.message}",
-                    isUser = false
-                )
-                _messages.value = _messages.value + errorMessage
-            } finally {
-                _isTyping.value = false
+    // Хелпер функция для получения File из Uri (может потребоваться доработка для разных Uri)
+    private fun getFileFromUri(context: Context, uri: Uri): File? {
+        return try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            val file = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}")
+            inputStream?.use { input ->
+                FileOutputStream(file).use { output ->
+                    input.copyTo(output)
+                }
             }
+            file
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

@@ -50,8 +50,9 @@ fun MainScreen(
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var showSettings by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
-    var selectedVoice by remember { mutableStateOf<String>(TTSManager.availableVoices.first()) }
     val context = LocalContext.current
+    val ttsManager = remember { TTSManager(context) }
+    var selectedVoice by remember { mutableStateOf<String>(ttsManager.availableVoices.first()) }
     val scope = rememberCoroutineScope()
 
     val chatViewModel: ChatViewModel = hiltViewModel()
@@ -59,15 +60,15 @@ fun MainScreen(
     // При старте — загрузить имя голоса и применить
     LaunchedEffect(Unit) {
         val voiceName = VoicePreferences.loadVoiceName(context)
-        if (voiceName != null && voiceName in TTSManager.availableVoices) {
+        if (voiceName != null && ttsManager.availableVoices.contains(voiceName)) {
             selectedVoice = voiceName
-            TTSManager.setVoice(voiceName)
+            ttsManager.setVoice(voiceName)
         }
     }
 
     fun handleVoiceSelected(voice: String) {
         selectedVoice = voice
-        TTSManager.setVoice(voice)
+        ttsManager.setVoice(voice)
         scope.launch {
             VoicePreferences.saveVoiceName(context, voice)
         }
@@ -181,7 +182,8 @@ fun MainScreen(
                             onClose = { showSettings = false },
                             onClearChat = { chatViewModel.resetConversation() },
                             onVoiceSelected = { handleVoiceSelected(it) },
-                            selectedVoice = selectedVoice
+                            selectedVoice = selectedVoice,
+                            ttsManager = ttsManager
                         )
                     }
                     role == null -> {
