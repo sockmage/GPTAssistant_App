@@ -66,11 +66,16 @@ fun MainScreen(
         topBar = {
             when {
                 showSettings -> {
-                    TopAppBar(
-                        title = { Text("Настройки", style = MaterialTheme.typography.headlineLarge) },
+                    CenterAlignedTopAppBar(
+                        title = {
+                            Text(
+                                "Настройки",
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        },
                         navigationIcon = {
                             IconButton(onClick = { showSettings = false }) {
-                                Icon(Icons.Outlined.Close, contentDescription = "Закрыть")
+                                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "Назад")
                             }
                         },
                         actions = {}
@@ -143,7 +148,7 @@ fun MainScreen(
                             onClose = { showSettings = false },
                             onClearChat = { chatViewModel.resetConversation() },
                             onResetRole = { selectedRole = null; showSettings = false },
-                            paddingValues = innerPadding
+                            paddingValues = PaddingValues(0.dp) // не передаём innerPadding, чтобы не было отступа
                         )
                     }
                     role == null -> {
