@@ -1,13 +1,10 @@
 import java.io.File
 import java.util.Properties
 
-// Load signing properties from config directory
-val signingPropertiesFile = project.rootDir.resolve("config/gradle.properties")
-val signingProperties = Properties()
-if (signingPropertiesFile.exists()) {
-    signingPropertiesFile.inputStream().use { signingProperties.load(it) }
-} else {
-    println("Warning: config/gradle.properties not found. Signing properties will not be loaded.")
+val rootPropertiesFile = project.rootDir.resolve("gradle.properties")
+val rootProperties = Properties()
+if (rootPropertiesFile.exists()) {
+    rootPropertiesFile.inputStream().use { rootProperties.load(it) }
 }
 
 plugins {
@@ -33,20 +30,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("${project.rootDir}/config/my_release_key.jks")
-            storePassword = signingProperties.getProperty("MY_RELEASE_STORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD")
-            keyAlias = signingProperties.getProperty("MY_RELEASE_KEY_ALIAS") ?: System.getenv("KEY_ALIAS")
-            keyPassword = signingProperties.getProperty("MY_RELEASE_KEY_PASSWORD") ?: System.getenv("KEY_PASSWORD")
-
-            if (storePassword == null) {
-                throw GradleException("Missing MY_RELEASE_STORE_PASSWORD in properties or KEYSTORE_PASSWORD env var.")
-            }
-            if (keyAlias == null) {
-                throw GradleException("Missing MY_RELEASE_KEY_ALIAS in properties or KEY_ALIAS env var.")
-            }
-            if (keyPassword == null) {
-                throw GradleException("Missing MY_RELEASE_KEY_PASSWORD in properties or KEY_PASSWORD env var.")
-            }
+            storeFile = file("${project.rootDir}/my_release_key.jks")
+            storePassword = rootProperties.getProperty("MY_RELEASE_STORE_PASSWORD") ?: System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = rootProperties.getProperty("MY_RELEASE_KEY_ALIAS") ?: System.getenv("KEY_ALIAS")
+            keyPassword = rootProperties.getProperty("MY_RELEASE_KEY_PASSWORD") ?: System.getenv("KEY_PASSWORD")
         }
     }
 
