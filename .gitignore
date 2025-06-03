@@ -29,3 +29,5 @@ config/gradle.properties
 config/local.properties
 config/*.jks
 !config/*.example
+
+*.jks
