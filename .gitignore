@@ -13,8 +13,17 @@
 .externalNativeBuild
 .cxx
 local.properties
+caches/
+.tmp
+native/
+wrapper/
+android/FakeDependency.jar
+/daemon/
+/.vscode/
 
-# Не добавляйте release-ключи в репозиторий!
+
+# IMPORTANT FILES #
+# Do not add release keys to the repository!
 my-release-key.jks
 *.jks
 gradle.properties

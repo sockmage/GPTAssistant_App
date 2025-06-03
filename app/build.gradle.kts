@@ -23,10 +23,10 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("../my-release-key.jks")
-            storePassword = System.getenv("RELEASE_STORE_PASSWORD") ?: project.findProperty("RELEASE_STORE_PASSWORD") as String?
-            keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: project.findProperty("RELEASE_KEY_ALIAS") as String?
-            keyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: project.findProperty("RELEASE_KEY_PASSWORD") as String?
+            storeFile = file(project.findProperty("MY_RELEASE_STORE_FILE") as String)
+            storePassword = project.findProperty("MY_RELEASE_STORE_PASSWORD") as String
+            keyAlias = project.findProperty("MY_RELEASE_KEY_ALIAS") as String
+            keyPassword = project.findProperty("MY_RELEASE_KEY_PASSWORD") as String
         }
     }
 
