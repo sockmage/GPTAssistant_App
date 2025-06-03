@@ -20,6 +20,7 @@ wrapper/
 android/FakeDependency.jar
 /daemon/
 /.vscode/
+/kotlin-profile/
 
 
 # IMPORTANT FILES #
