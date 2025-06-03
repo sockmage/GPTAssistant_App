@@ -83,13 +83,12 @@ fun ChatMessage(
         SimpleDateFormat("HH:mm", Locale.getDefault()).format(date)
     }
     val configuration = LocalConfiguration.current
-    val maxBubbleWidth = (configuration.screenWidthDp * 0.75f).dp
     val userBubbleColor = MaterialTheme.colorScheme.primaryContainer
     val assistantBubbleColor = MaterialTheme.colorScheme.surfaceVariant
     val userShape: Shape = RoundedCornerShape(topStart = 20.dp, topEnd = 4.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
     val assistantShape: Shape = RoundedCornerShape(topStart = 4.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 20.dp)
-    val imageShapeUser = RoundedCornerShape(topStart = 20.dp, topEnd = 4.dp, bottomEnd = 20.dp, bottomStart = 0.dp)
-    val imageShapeAssistant = RoundedCornerShape(topStart = 4.dp, topEnd = 20.dp, bottomEnd = 0.dp, bottomStart = 20.dp)
+    val imageShapeUser = RoundedCornerShape(12.dp)
+    val imageShapeAssistant = RoundedCornerShape(12.dp)
     val ttsScale by animateFloatAsState(
         targetValue = if (isSpeaking) 1.25f else 1f,
         animationSpec = tween(durationMillis = 600), label = "ttsScale"
@@ -195,8 +194,7 @@ fun ChatMessage(
         // Бабл
         Card(
             modifier = Modifier
-                .wrapContentWidth(unbounded = true)
-                .widthIn(max = maxBubbleWidth)
+                .wrapContentWidth()
                 .wrapContentHeight(),
             colors = CardDefaults.cardColors(
                 containerColor = if (message.isUser) userBubbleColor else assistantBubbleColor
@@ -250,7 +248,7 @@ fun ChatMessage(
                                 model = message.attachmentUrl,
                                 contentDescription = "Вложенное изображение",
                                 modifier = Modifier
-                                    .sizeIn(maxWidth = maxBubbleWidth, maxHeight = 220.dp)
+                                    .padding(8.dp)
                                     .clip(if (message.isUser) imageShapeUser else imageShapeAssistant)
                             )
                         }
@@ -275,8 +273,7 @@ fun ChatMessage(
                 }
                 Spacer(Modifier.height(2.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
+                    horizontalArrangement = if (message.isUser) Arrangement.Start else Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(

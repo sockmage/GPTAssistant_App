@@ -1,3 +1,5 @@
+import java.util.Properties
+
 pluginManagement {
     repositories {
         google {
@@ -21,6 +23,25 @@ dependencyResolutionManagement {
         flatDir {
             dirs("app/libs")
         }
+    }
+}
+
+// Load properties from config directory
+val propertiesFile = File(rootDir, "config/gradle.properties")
+if (propertiesFile.exists()) {
+    val properties = Properties()
+    propertiesFile.inputStream().use { properties.load(it) }
+    properties.forEach { key, value ->
+        extra.set(key as String, value)
+    }
+}
+
+val localPropertiesFile = File(rootDir, "config/local.properties")
+if (localPropertiesFile.exists()) {
+    val properties = Properties()
+    localPropertiesFile.inputStream().use { properties.load(it) }
+    properties.forEach { key, value ->
+        extra.set(key as String, value)
     }
 }
 

@@ -36,6 +36,7 @@ import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.People
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,11 +145,11 @@ fun SettingsScreen(
             ) {
                 Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
                     listOf(
-                        Triple("Мы в Telegram", Icons.AutoMirrored.Outlined.Send) {
+                        Triple("Мы в Telegram", Icons.Outlined.People) {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Language_assistant1_bot"))
                             context.startActivity(intent)
                         },
-                        Triple("О разработчиках", Icons.Outlined.Info) { onAboutClick() }
+                        Triple("Справка", Icons.Outlined.Info) { onAboutClick() }
                     ).forEachIndexed { idx, (text, icon, onClick) ->
                         val shape = when (idx) {
                             0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
@@ -167,6 +168,29 @@ fun SettingsScreen(
                                 .padding(vertical = 2.dp)
                         )
                     }
+                }
+            }
+        }
+        item {
+            Text("Действия", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp, top = 8.dp))
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                tonalElevation = 2.dp,
+                modifier = Modifier.padding(bottom = 20.dp)
+            ) {
+                Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
+                    ListItem(
+                        headlineContent = { Text("Очистить чат", style = MaterialTheme.typography.bodyLarge) },
+                        leadingContent = {
+                            Icon(Icons.Outlined.Delete, contentDescription = "Очистить чат", modifier = Modifier.size(24.dp))
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable { showClearDialog = true }
+                            .padding(vertical = 2.dp)
+                    )
                 }
             }
         }

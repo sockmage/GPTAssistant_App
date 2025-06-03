@@ -24,7 +24,8 @@ android/FakeDependency.jar
 
 
 # IMPORTANT FILES #
-# Do not add release keys to the repository!
-my-release-key.jks
-*.jks
-gradle.properties
+# Do not add sensitive files to the repository!
+config/gradle.properties
+config/local.properties
+config/*.jks
+!config/*.example
