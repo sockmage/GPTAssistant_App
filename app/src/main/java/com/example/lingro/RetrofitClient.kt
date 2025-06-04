@@ -5,7 +5,7 @@ import com.example.lingro.data.api.OpenAIApi
 
 object RetrofitClient {
     // Базовый URL API OpenAI
-    private const val BASE_URL = "https://lingroproxy-production.up.railway.app/"
+    private const val BASE_URL = "https://lingro-proxy-production.up.railway.app/"
 
     // Создаем объект API один раз и переиспользуем
     val api: OpenAIApi by lazy {

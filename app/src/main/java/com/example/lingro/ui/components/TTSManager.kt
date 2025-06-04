@@ -45,7 +45,7 @@ class TTSManager(private val context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 withContext(Dispatchers.Main) { onLoadingStart.invoke() }
-                val url = URL("https://lingroproxy-production.up.railway.app/tts")
+                val url = URL("https://lingro-proxy-production.up.railway.app/tts")
                 val postData = "{\"input\":\"${text.replace("\"", "\\\"") }\",\"voice\":\"$useVoice\"}"
                 Log.d("TTSManager", "Запрос к $url с голосом $useVoice и текстом: $text")
                 val conn = url.openConnection() as HttpURLConnection

@@ -20,7 +20,7 @@ Android-приложение для общения с ИИ-ассистенто�
 
 ## Архитектура
 
-- Все текстовые и PDF-запросы идут через [Lingro-Proxy (Node.js)](https://github.com/sockmage/Lingro-Proxy)
+- Все текстовые и PDF-запросы идут через [Lingro-Proxy (Node.js)](https://lingro-proxy-production.up.railway.app/)
 - Поиск изображений — через [DuckDuckGo Image API for Lingro (Python FastAPI)](https://github.com/sockmage/DDG-Image-API-for-Lingro)
 - Приложение не хранит ключи OpenAI/Unsplash и не зависит от региона пользователя
 
