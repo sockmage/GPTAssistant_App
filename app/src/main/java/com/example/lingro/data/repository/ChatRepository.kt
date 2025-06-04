@@ -30,7 +30,7 @@ class ChatRepository @Inject constructor(
     }
 
     // Анализ изображения с текстом (Vision)
-    suspend fun getVisionResponse(file: File, prompt: String, model: String = "gpt-4o"): String {
+    suspend fun getVisionResponse(file: File, prompt: String): String {
         val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
         val filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
         val promptPart = prompt.toRequestBody("text/plain".toMediaTypeOrNull())

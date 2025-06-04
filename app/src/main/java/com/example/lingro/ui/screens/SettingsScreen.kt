@@ -37,6 +37,43 @@ import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.People
+import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.outlined.ColorLens
+
+@Composable
+fun SettingCard(
+    icon: ImageVector,
+    title: String,
+    subtitle: String? = null,
+    onClick: () -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 1.dp,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                indication = rememberRipple(),
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onClick() }
+    ) {
+        Row(
+            Modifier.padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(28.dp))
+            Spacer(Modifier.width(20.dp))
+            Column {
+                Text(title, style = MaterialTheme.typography.titleLarge)
+                if (subtitle != null) {
+                    Text(subtitle, style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                }
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +96,7 @@ fun SettingsScreen(
     var showVoiceDialog by remember { mutableStateOf(false) }
     var showNoVoicesDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
     var showTTSHelpDialog by remember { mutableStateOf(false) }
     val languageList = listOf(
         "ru" to "Русский",
@@ -71,6 +109,8 @@ fun SettingsScreen(
         "ja" to "日本語",
         "ko" to "한국어"
     )
+    val activity = (LocalContext.current as? android.app.Activity)
+    val scope = rememberCoroutineScope()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -79,35 +119,43 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         item {
-            Text("Тема", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp, top = 8.dp))
+            Text("Тема", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp, top = 16.dp))
             Surface(
-                shape = MaterialTheme.shapes.medium,
+                shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 tonalElevation = 2.dp,
-                modifier = Modifier.padding(bottom = 20.dp)
+                modifier = Modifier.padding(bottom = 28.dp)
             ) {
-                Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
                     ThemeMode.entries.forEachIndexed { idx, mode ->
-                        val shape = when (idx) {
-                            0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                            ThemeMode.entries.lastIndex -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                            else -> RoundedCornerShape(0.dp)
-                        }
-                        ListItem(
-                            headlineContent = { Text(mode.displayName, style = MaterialTheme.typography.bodyLarge) },
-                            leadingContent = {
-                                RadioButton(
-                                    selected = currentTheme == mode,
-                                    onClick = { onThemeChange(mode) },
-                                    colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                                )
-                            },
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clip(shape)
-                                .clickable { onThemeChange(mode) }
-                                .padding(vertical = 2.dp)
-                        )
+                                .clip(RoundedCornerShape(20.dp))
+                                .clickable(
+                                    indication = rememberRipple(bounded = true),
+                                    interactionSource = remember { MutableInteractionSource() }
+                                ) { onThemeChange(mode) }
+                                .padding(vertical = 16.dp, horizontal = 8.dp)
+                        ) {
+                            RadioButton(
+                                selected = currentTheme == mode,
+                                onClick = { onThemeChange(mode) },
+                                colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Text(mode.displayName, style = MaterialTheme.typography.bodyLarge)
+                        }
+                        if (idx != ThemeMode.entries.lastIndex) {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .padding(start = 52.dp)
+                                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                            )
+                        }
                     }
                 }
             }
@@ -115,58 +163,76 @@ fun SettingsScreen(
         item {
             Text("Озвучивание", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp, top = 8.dp))
             Surface(
-                shape = MaterialTheme.shapes.medium,
+                shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 tonalElevation = 2.dp,
-                modifier = Modifier.padding(bottom = 20.dp)
+                modifier = Modifier.padding(bottom = 28.dp)
             ) {
-                Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
-                    ListItem(
-                        headlineContent = { Text("Изменить голос", style = MaterialTheme.typography.bodyLarge) },
-                        leadingContent = {
-                            Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = "Выбрать ChatGPT голос", modifier = Modifier.size(24.dp))
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable { showVoiceDialog = true }
-                            .padding(vertical = 2.dp)
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable(
+                            indication = rememberRipple(bounded = true),
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) { showVoiceDialog = true }
+                        .padding(vertical = 16.dp, horizontal = 16.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Outlined.VolumeUp, contentDescription = "Изменить голос", modifier = Modifier.size(24.dp))
+                    Spacer(Modifier.width(16.dp))
+                    Text("Изменить голос", style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
         item {
             Text("Информация", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp, top = 8.dp))
             Surface(
-                shape = MaterialTheme.shapes.medium,
+                shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 tonalElevation = 2.dp,
-                modifier = Modifier.padding(bottom = 20.dp)
+                modifier = Modifier.padding(bottom = 28.dp)
             ) {
-                Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
-                    listOf(
-                        Triple("Мы в Telegram", Icons.Outlined.People) {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Language_assistant1_bot"))
-                            context.startActivity(intent)
-                        },
-                        Triple("Справка", Icons.Outlined.Info) { onAboutClick() }
-                    ).forEachIndexed { idx, (text, icon, onClick) ->
-                        val shape = when (idx) {
-                            0 -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-                            1 -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
-                            else -> RoundedCornerShape(0.dp)
-                        }
-                        ListItem(
-                            headlineContent = { Text(text, style = MaterialTheme.typography.bodyLarge) },
-                            leadingContent = {
-                                Icon(icon, contentDescription = text, modifier = Modifier.size(24.dp))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(shape)
-                                .clickable { onClick() }
-                                .padding(vertical = 2.dp)
-                        )
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable(
+                                indication = rememberRipple(bounded = true),
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Language_assistant1_bot"))
+                                context.startActivity(intent)
+                            }
+                            .padding(vertical = 16.dp, horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Outlined.People, contentDescription = "Мы в Telegram", modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(16.dp))
+                        Text("Мы в Telegram", style = MaterialTheme.typography.bodyLarge)
+                    }
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(start = 52.dp)
+                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable(
+                                indication = rememberRipple(bounded = true),
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { onAboutClick() }
+                            .padding(vertical = 16.dp, horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Outlined.Info, contentDescription = "Справка", modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(16.dp))
+                        Text("Справка", style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }
@@ -174,26 +240,108 @@ fun SettingsScreen(
         item {
             Text("Действия", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 6.dp, top = 8.dp))
             Surface(
-                shape = MaterialTheme.shapes.medium,
+                shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 tonalElevation = 2.dp,
-                modifier = Modifier.padding(bottom = 20.dp)
+                modifier = Modifier.padding(bottom = 28.dp)
             ) {
-                Column(Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
-                    ListItem(
-                        headlineContent = { Text("Очистить чат", style = MaterialTheme.typography.bodyLarge) },
-                        leadingContent = {
-                            Icon(Icons.Outlined.Delete, contentDescription = "Очистить чат", modifier = Modifier.size(24.dp))
-                        },
+                Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable { showClearDialog = true }
-                            .padding(vertical = 2.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable(
+                                indication = rememberRipple(bounded = true),
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { showLanguageDialog = true }
+                            .padding(vertical = 16.dp, horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Outlined.Language, contentDescription = "Сменить язык", modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(16.dp))
+                        Text("Сменить язык", style = MaterialTheme.typography.bodyLarge)
+                    }
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(start = 52.dp)
+                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                     )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable(
+                                indication = rememberRipple(bounded = true),
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) { showClearDialog = true }
+                            .padding(vertical = 16.dp, horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Outlined.Delete, contentDescription = "Очистить чат", modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(16.dp))
+                        Text("Очистить чат", style = MaterialTheme.typography.bodyLarge)
+                    }
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .padding(start = 52.dp)
+                            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(20.dp))
+                            .clickable(
+                                indication = rememberRipple(bounded = true),
+                                interactionSource = remember { MutableInteractionSource() }
+                            ) {
+                                scope.launch {
+                                    com.example.lingro.ui.components.VoicePreferences.saveOnboardingDone(context, false)
+                                    activity?.recreate()
+                                }
+                            }
+                            .padding(vertical = 16.dp, horizontal = 8.dp)
+                    ) {
+                        Icon(Icons.Outlined.Refresh, contentDescription = "Начать первоначальную настройку", modifier = Modifier.size(24.dp))
+                        Spacer(Modifier.width(16.dp))
+                        Text("Начать первоначальную настройку", style = MaterialTheme.typography.bodyLarge)
+                    }
                 }
             }
         }
+    }
+    if (showThemeDialog) {
+        AlertDialog(
+            onDismissRequest = { showThemeDialog = false },
+            title = { Text("Выберите тему оформления") },
+            text = {
+                Column {
+                    ThemeMode.entries.forEach { mode ->
+                        ListItem(
+                            headlineContent = { Text(mode.displayName) },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = currentTheme == mode,
+                                    onClick = { onThemeChange(mode); showThemeDialog = false }
+                                )
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onThemeChange(mode); showThemeDialog = false }
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showThemeDialog = false }) {
+                    Text("Закрыть")
+                }
+            }
+        )
     }
     if (showClearDialog) {
         AlertDialog(
@@ -316,4 +464,29 @@ enum class ThemeMode(val displayName: String) {
     LIGHT("Светлая"),
     DARK("Тёмная"),
     SYSTEM("Системная")
+}
+
+@Composable
+fun ActionRow(icon: ImageVector, text: String, onClick: () -> Unit, contentPadding: PaddingValues) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(contentPadding)
+    ) {
+        Icon(icon, contentDescription = text, modifier = Modifier.size(24.dp))
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Composable
+fun ActionDivider() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+    )
 } 
